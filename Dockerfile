@@ -2,6 +2,7 @@ FROM tomcat:9-jdk11 AS mother
 LABEL maintainer="Alessandro Parma<alessandro.parma@geosolutionsgroup.com>"
 ARG MAPSTORE_WEBAPP_SRC="./product/target/mapstore.war"
 ADD "${MAPSTORE_WEBAPP_SRC}" "/mapstore/"
+RUN rm -rf ${CATALINA_BASE}/webapps/mapstore
 
 COPY ./docker/* /mapstore/docker/
 WORKDIR /mapstore

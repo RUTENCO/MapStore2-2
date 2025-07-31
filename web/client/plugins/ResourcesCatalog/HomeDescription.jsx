@@ -12,7 +12,7 @@ import HTML from '../../components/I18N/HTML';
 import Text from '../../components/layout/Text';
 import { Jumbotron } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import src from '../../product/assets/img/hero.jpg';
+import src from '../../product/assets/img/banner_udea.jpg';
 
 /**
  * This plugin shows a main description in the homepage

@@ -393,7 +393,7 @@
     },
     "home": {
       "open": "Öffnen",
-      "shortDescription": "<h1>Willkommen bei MapStore</h1><p>Modernes Webmapping mit OpenLayers, Cesium, Leaflet und ReactJS.</p>",
+      "shortDescription": "<h1>Gll Infrastructure Research Group - UdeA</h1><p>Willkommen auf dem geografischen Portal der Gll Infrastructure Research Group - UdeA</p>",
       "forkMeOnGitHub": "Fork me on GitHub",
       "description": "MapStore wurde entwickelt, um auf einfache und intuitive Weise Karten und Mashups zu erstellen, zu speichern und zu teilen die auf Inhalten von bekannten Quellen wie Google Maps und OpenStreetMap oder von Diensten die auf offenen Protokollen wie OGC WMS, WFS, WMTS or TMS und so weiter basieren.<br/>Besuche die <a href=\"https://mapstore.readthedocs.io/en/latest/\">Homepage</a> für mehr Details.",
       "Applications": "Anwendungen",

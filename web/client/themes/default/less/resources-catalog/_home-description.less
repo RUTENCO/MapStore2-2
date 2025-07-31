@@ -16,6 +16,18 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    background-color: transparent; // Fondo transparente
+
+    // Estilos para los elementos internos
+    p, h1 {
+        white-space: normal; // Permitir que el texto se ajuste al siguiente renglón
+        overflow-wrap: break-word; // Evitar que las palabras se corten
+        word-break: break-word; // Compatibilidad adicional para navegadores antiguos
+    }
+
+    p {
+        font-weight: bold; // Resaltar el texto en negrita
+    }
 
     &::before {
         content: ' ';
