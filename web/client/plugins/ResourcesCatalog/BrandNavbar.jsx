@@ -6,7 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Glyphicon } from 'react-bootstrap';
 
 import { createPlugin } from "../../utils/PluginsUtils";
@@ -16,28 +17,27 @@ import usePluginItems from '../../hooks/usePluginItems';
 import Button from '../../components/layout/Button';
 import tooltip from '../../components/misc/enhancers/tooltip';
 import Spinner from '../../components/layout/Spinner';
-import PropTypes from 'prop-types';
 import MenuNavLink from './components/MenuNavLink';
-import src from '../../product/assets/img/logo.png';
+import src from '../../product/assets/img/icono_inicio.png';
+
+// Importa tu LESS (ajusta ruta si hace falta)
+import '../../themes/default/less/resources-catalog/_brand-navbar.less';
 
 const ButtonWithTooltip = tooltip(Button);
 
-function BrandNavbarMenuItem({
-    className,
-    loading,
-    glyph,
-    labelId,
-    onClick
-}) {
+/* --------------------
+   Item component para el menu (botón/ícono)
+   -------------------- */
+function BrandNavbarMenuItem({ className, loading, glyph, labelId, onClick }) {
     return (
-        <li>
+        <li className="ms-brand-navbar-item">
             <ButtonWithTooltip
                 square
                 borderTransparent
                 tooltipId={labelId}
                 tooltipPosition="bottom"
                 onClick={onClick}
-                className={className}
+                className={`ms-menu-link${className ? ' ' + className : ''}`}
             >
                 {loading ? <Spinner /> : <Glyphicon glyph={glyph} />}
             </ButtonWithTooltip>
@@ -49,7 +49,6 @@ BrandNavbarMenuItem.propTypes = {
     className: PropTypes.string,
     loading: PropTypes.bool,
     glyph: PropTypes.string,
-    iconType: PropTypes.string,
     labelId: PropTypes.string,
     onClick: PropTypes.func
 };
@@ -58,105 +57,77 @@ BrandNavbarMenuItem.defaultProps = {
     onClick: () => {}
 };
 
-/**
- * This plugin provides a special Manager dropdown menu, that contains various administration tools
- * @memberof plugins
- * @class
- * @name BrandNavbar
- * @prop {object[]} cfg.leftMenuItems menu items configuration for left side
- * @prop {object[]} cfg.rightMenuItems menu items configuration for right side
- * @prop {object[]} items this property contains the items injected from the other plugins,
- * using the `containers` option in the plugin that want to inject new menu items.
- * ```javascript
- * const MyMenuButtonComponent = connect(selector, { onActivateTool })(({
- *  component, // default component that provides a consistent UI (see BrandNavbarMenuItem in BrandNavbar plugin for props)
- *  variant, // one of style variant (primary, success, danger or warning)
- *  size, // button size
- *  className, // custom class name provided by configuration
- *  onActivateTool, // example of a custom connected action
- * }) => {
- *  const ItemComponent = component;
- *  return (
- *      <ItemComponent
- *          className="my-class-name"
- *          loading={false}
- *          glyph="heart"
- *          labelId="myMessageId"
- *          onClick={() => onActivateTool()}
- *      />
- *  );
- * });
- * createPlugin(
- *  'MyPlugin',
- *  {
- *      containers: {
- *          BrandNavbar: {
- *              name: "TOOLNAME", // a name for the current tool.
- *              Component: MyMenuButtonComponent
- *          },
- * // ...
- * ```
- * @example
- * {
- *  "name": "BrandNavbar",
- *  "cfg": {
- *      "containerPosition": "header",
- *      "leftMenuItems": [
- *          {
- *              "type": "link",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "glyph": "heart",
- *              "labelId": "myMessageId",
- *              "variant": "default"
- *          },
- *          {
- *              "type": "logo",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "src": "/my-image.jpg",
- *              "style": {}
- *          },
- *          {
- *              "type": "button",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "glyph": "heart",
- *              "tooltipId": "myMessageId",
- *              "variant": "default",
- *              "square": true
- *          },
- *          {
- *              "type": "divider"
- *          }
- *      ],
-*      "rightMenuItems": [
-*          {
-*              "type": "button",
-*              "href": "/my-link",
-*              "target": "blank",
-*              "glyph": "heart",
-*              "labelId": "myMessageId",
-*              "variant": "default"
-*          }
-*      ]
- *  }
- * }
- */
-function BrandNavbar({
-    size,
-    variant,
-    leftMenuItems,
-    rightMenuItems,
-    items,
-    logo
-}, context) {
+/* --------------------
+   Componente principal
+   -------------------- */
+function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo }, context) {
     const { loadedPlugins } = context;
     const configuredItems = usePluginItems({ items, loadedPlugins });
-    const pluginLeftMenuItems = configuredItems.filter(({ target }) => target === 'left-menu').map(item => ({ ...item, type: 'plugin' }));
-    const pluginRightMenuItems = configuredItems.filter(({ target }) => target === 'right-menu').map(item => ({ ...item, type: 'plugin' }));
+
+    const pluginLeftMenuItems = configuredItems
+        .filter(({ target }) => target === 'left-menu')
+        .map(item => ({ ...item, type: 'plugin' }));
+
+    const pluginRightMenuItems = configuredItems
+        .filter(({ target }) => target === 'right-menu')
+        .map(item => ({ ...item, type: 'plugin' }));
+
+    // Estado para menú hamburguesa (mobile)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // isMobile reactivo (escucha resize) para SSR safe
+    const isClient = typeof window !== 'undefined';
+    const [isMobile, setIsMobile] = useState(isClient ? window.innerWidth <= 768 : false);
+
+    useEffect(() => {
+        // Aseguramos siempre devolver una función (para evitar eslint consistent-return)
+        if (!isClient) {
+            return () => {};
+        }
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [isClient]);
+
+    // Helper: añade position y ordena por position
+    const addPositionAndSort = (arr) =>
+        arr
+            .map((item, idx) => ({ ...item, position: item.position || idx + 1 }))
+            .sort((a, b) => (a.position || 0) - (b.position || 0));
+
+    // Asegura apariencia uniforme: inyecta className y variant por defecto
+    const ensureMenuAppearance = (item) => ({
+        ...item,
+        className: item.className ? `${item.className} ms-menu-link` : 'ms-menu-link',
+        variant: item.variant || 'default'
+    });
+
+    // Separar dropdowns (menú principal) de otros tipos de items y aplicar ensureMenuAppearance
+    const dropdownMenuItems = useMemo(() => addPositionAndSort([
+        ...leftMenuItems.filter(item => item.type === 'dropdown').map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
+        ...pluginLeftMenuItems.filter(item => item.type === 'dropdown')
+    ]).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems]);
+
+    const otherLeftMenuItems = useMemo(() => addPositionAndSort([
+        ...leftMenuItems.filter(item => item.type !== 'dropdown').map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
+        ...pluginLeftMenuItems.filter(item => item.type !== 'dropdown')
+    ]).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems]);
+
+    const rightItemsSorted = useMemo(() => addPositionAndSort([
+        ...rightMenuItems.map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
+        ...pluginRightMenuItems
+    ]).map(ensureMenuAppearance), [rightMenuItems, pluginRightMenuItems]);
+
+    // Render
     return (
         <>
+            {/* Header GOV Colombia */}
+            <div className="ms-header-gov" role="banner">
+                <a href="https://www.gov.co/" target="_blank" rel="noopener noreferrer" aria-label="gov.co">
+                    <img src="../../product/assets/img/cov_colombia.png" alt="Gov.co" className="ms-header-gov-img" />
+                </a>
+            </div>
+
             <FlexBox
                 id="ms-brand-navbar"
                 classNames={[
@@ -170,36 +141,95 @@ function BrandNavbar({
                 ]}
                 centerChildrenVertically
                 gap="sm"
+                style={{ position: 'relative' }}
             >
-                {logo ? (
+                {/* Logo a la izquierda */}
+                {logo && (
                     <MenuNavLink className="ms-brand-navbar-logo" href={logo.href || '#/'}>
-                        <img src={logo?.src} style={{ width: 'auto', height: '2rem', objectFit: 'contain', ...logo.style }}/>
+                        <img
+                            src={logo.src}
+                            alt="Logo"
+                            style={{ width: 'auto', height: '4.2rem', objectFit: 'contain', ...logo.style }}
+                        />
                     </MenuNavLink>
-                ) : null}
-                <FlexBox.Fill
-                    component={Menu}
-                    centerChildrenVertically
-                    gap="xs"
-                    size={size}
-                    variant={variant}
-                    menuItemComponent={BrandNavbarMenuItem}
-                    items={[
-                        ...leftMenuItems.map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
-                        ...pluginLeftMenuItems
-                    ].sort((a, b) => a.position - b.position)}
-                />
-                <Menu
-                    centerChildrenVertically
-                    gap="xs"
-                    variant={variant}
-                    alignRight
-                    size={size}
-                    menuItemComponent={BrandNavbarMenuItem}
-                    items={[
-                        ...rightMenuItems.map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
-                        ...pluginRightMenuItems
-                    ].sort((a, b) => a.position - b.position)}
-                />
+                )}
+
+                {/* Menú hamburguesa (mobile) */}
+                {isMobile && dropdownMenuItems.length > 0 && (
+                    <button
+                        className="ms-menu-link ms-menu-hamburger-btn"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="ms-mobile-dropdown"
+                        aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+                        type="button"
+                    >
+                        <Glyphicon glyph="menu-hamburger" />
+                    </button>
+                )}
+
+                {/* Items izq (no dropdowns) — ocultos en mobile si se usa hamburguesa */}
+                {!isMobile && otherLeftMenuItems.length > 0 && (
+                    <Menu
+                        centerChildrenVertically
+                        gap="xs"
+                        size={size}
+                        variant={variant}
+                        menuItemComponent={BrandNavbarMenuItem}
+                        items={otherLeftMenuItems}
+                    />
+                )}
+
+                {/* Dropdowns en desktop */}
+                {!isMobile && dropdownMenuItems.length > 0 && (
+                    <Menu
+                        centerChildrenVertically
+                        gap="xs"
+                        size={size}
+                        variant={variant}
+                        menuItemComponent={BrandNavbarMenuItem}
+                        items={dropdownMenuItems}
+                        dropdownClassName="ms-brand-dropdown"
+                    />
+                )}
+
+                {/* Right side (alineado a la derecha) */}
+                <div className="ms-brand-navbar-right" aria-hidden={false}>
+                    <Menu
+                        centerChildrenVertically
+                        gap="xs"
+                        variant={variant}
+                        alignRight
+                        size={size}
+                        menuItemComponent={BrandNavbarMenuItem}
+                        items={rightItemsSorted}
+                    />
+                </div>
+
+                {/* Mobile overlay + dropdown panel */}
+                {isMobile && mobileMenuOpen && dropdownMenuItems.length > 0 && (
+                    <>
+                        <div
+                            className="ms-mobile-dropdown-overlay"
+                            onClick={() => setMobileMenuOpen(false)}
+                            role="button"
+                            aria-label="Cerrar menú"
+                        />
+                        <div id="ms-mobile-dropdown" className="ms-mobile-dropdown-menu" role="dialog" aria-modal="true">
+                            {dropdownMenuItems.map((item, idx) => (
+                                <Menu
+                                    key={item.labelId || idx}
+                                    vertical
+                                    gap="xs"
+                                    size={size}
+                                    variant={variant}
+                                    menuItemComponent={BrandNavbarMenuItem}
+                                    items={[item]}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
             </FlexBox>
         </>
     );
@@ -210,7 +240,8 @@ BrandNavbar.propTypes = {
     variant: PropTypes.string,
     leftMenuItems: PropTypes.array,
     rightMenuItems: PropTypes.array,
-    items: PropTypes.array
+    items: PropTypes.array,
+    logo: PropTypes.object
 };
 
 BrandNavbar.contextTypes = {
@@ -222,7 +253,48 @@ BrandNavbar.defaultProps = {
         src,
         href: '#/'
     },
-    leftMenuItems: [],
+    leftMenuItems: [
+        {
+            type: 'dropdown',
+            labelId: 'Página 1',
+            glyph: 'globe',
+            variant: 'default',
+            items: [
+                { type: 'link', labelId: 'Subpágina 1', href: '/pagina1/sub1' },
+                { type: 'link', labelId: 'Subpágina 2', href: '/pagina1/sub2' }
+            ]
+        },
+        {
+            type: 'dropdown',
+            labelId: 'Página 2',
+            glyph: 'paperclip',
+            variant: 'default',
+            items: [
+                { type: 'link', labelId: 'Subpágina 3', href: '/pagina2/sub3' },
+                { type: 'link', labelId: 'Subpágina 4', href: '/pagina2/sub4' }
+            ]
+        },
+        {
+            type: 'dropdown',
+            labelId: 'Página 3',
+            glyph: 'folder-open',
+            variant: 'default',
+            items: [
+                { type: 'link', labelId: 'Subpágina 5', href: '/pagina3/sub5' },
+                { type: 'link', labelId: 'Subpágina 6', href: '/pagina3/sub6' }
+            ]
+        },
+        {
+            type: 'dropdown',
+            labelId: 'Página 4',
+            glyph: 'question-sign',
+            variant: 'default',
+            items: [
+                { type: 'link', labelId: 'Subpágina 7', href: '/pagina4/sub7' },
+                { type: 'link', labelId: 'Subpágina 8', href: '/pagina4/sub8' }
+            ]
+        }
+    ],
     rightMenuItems: []
 };
 

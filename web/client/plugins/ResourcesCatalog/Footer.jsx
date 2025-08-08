@@ -6,20 +6,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { withResizeDetector } from 'react-resize-detector';
 import { Glyphicon } from 'react-bootstrap';
 
 import { createPlugin } from "../../utils/PluginsUtils";
-import Menu from './components/Menu';
 import Button from '../../components/layout/Button';
 import Spinner from '../../components/layout/Spinner';
-import HTML from '../../components/I18N/HTML';
 import Message from '../../components/I18N/Message';
-import FlexBox from '../../components/layout/FlexBox';
-import usePluginItems from '../../hooks/usePluginItems';
 
+// Importa los estilos del footer (ajusta la ruta si hace falta)
+import '../../themes/default/less/resources-catalog/_footer.less';
+
+/**
+ * Item de menú (compatibilidad en caso de volver a usar menuItems)
+ */
 function FooterMenuItem({
     className,
     loading,
@@ -47,163 +48,69 @@ FooterMenuItem.propTypes = {
     loading: PropTypes.bool,
     glyph: PropTypes.string,
     labelId: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    label: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
 };
 
 FooterMenuItem.defaultProps = {
-    onClick: () => { }
+    onClick: () => {}
 };
 
 /**
- * This plugin shows the footer
- * @memberof plugins
- * @class
- * @name Footer
- * @prop {boolean} cfg.customFooter params that can be used to render a custom html to be used instead of the default one
- * @prop {string} cfg.customFooterMessageId replace custom footer translations message identifier
- * @prop {object[]} cfg.menuItems list of menu items objects
- * @prop {boolean} cfg.hideMenuItems hide menu items menu
- * @prop {object[]} items this property contains the items injected from the other plugins,
- * using the `containers` option in the plugin that want to inject new menu items.
- * ```javascript
- * const MyMenuItemComponent = connect(selector, { onActivateTool })(({
- *  component, // default component that provides a consistent UI (see BrandNavbarMenuItem in BrandNavbar plugin for props)
- *  variant, // one of style variant (primary, success, danger or warning)
- *  size, // button size
- *  className, // custom class name provided by configuration
- *  onActivateTool, // example of a custom connected action
- * }) => {
- *  const ItemComponent = component;
- *  return (
- *      <ItemComponent
- *          className="my-class-name"
- *          loading={false}
- *          glyph="heart"
- *          labelId="myMessageId"
- *          onClick={() => onActivateTool()}
- *      />
- *  );
- * });
- * createPlugin(
- *  'MyPlugin',
- *  {
- *      containers: {
- *          Footer: {
- *              name: "TOOLNAME", // a name for the current tool.
- *              target: 'menu',
- *              Component: MyMenuItemComponent
- *          },
- * // ...
- * ```
- * @example
- * {
- *  "name": "Footer",
- *  "cfg": {
- *      "menuItems": [
- *          {
- *              "type": "link",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "glyph": "heart",
- *              "labelId": "myMessageId",
- *              "variant": "default"
- *          },
- *          {
- *              "type": "logo",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "src": "/my-image.jpg",
- *              "style": {}
- *          },
- *          {
- *              "type": "button",
- *              "href": "/my-link",
- *              "target": "blank",
- *              "glyph": "heart",
- *              "tooltipId": "myMessageId",
- *              "variant": "default",
- *              "square": true
- *          },
- *          {
- *              "type": "divider"
- *          },
- *          {
- *              "type": "message",
- *              "labelId": "myTranslationMessageId"
- *          }
- *      ]
- *  }
- * }
+ * Footer principal en flujo normal (no fixed).
+ * Se renderiza al final del contenido, por lo que no necesita spacer.
  */
-function Footer({
-    menuItems: menuItemsProp,
-    hideMenuItems,
-    items,
-    customFooter,
-    customFooterMessageId
-}, context) {
-    const { loadedPlugins } = context;
-    const ref = useRef();
-    const configuredItems = usePluginItems({ items, loadedPlugins });
-    const pluginMenuItems = configuredItems.filter(({ target }) => target === 'menu').map(item => ({ ...item, type: 'plugin' }));
-    const menuItems = [
-        ...menuItemsProp.map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
-        ...pluginMenuItems
-    ].sort((a, b) => a.position - b.position);
+function Footer() {
     return (
-        <>
-            {customFooter ? <HTML msgId={customFooterMessageId} /> : null}
-            {!hideMenuItems || menuItems.length === 0 ? <>
-                <div style={{ height: ref?.current?.clientHeight }}></div>
-                <FlexBox ref={ref} component="footer" id="ms-footer" className="ms-footer _padding-xs" centerChildren>
-                    <Menu
-                        centerChildrenVertically
-                        gap="md"
-                        alignRight
-                        wrap
-                        menuItemComponent={FooterMenuItem}
-                        items={menuItems}
-                    />
-                </FlexBox>
-            </> : false}
-        </>
+        <footer id="ms-footer" className="ms-footer-custom" role="contentinfo">
+            <div className="ms-footer-custom__container">
+
+                {/* Bloque de marcas / logos */}
+                <div className="ms-footer-custom__brands" aria-hidden="false">
+                    <a
+                        className="ms-footer-custom__brand-link"
+                        href="https://colombia.co/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Colombia"
+                    >
+                        <img
+                            className="ms-footer-custom__brand-img ms-footer-custom__brand-img--co"
+                            src="../../product/assets/img/co_colombia.png"
+                            alt="Colombia"
+                        />
+                    </a>
+
+                    <div className="ms-footer-custom__separator" aria-hidden="true" />
+
+                    <a
+                        className="ms-footer-custom__brand-link"
+                        href="https://www.gov.co/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Gov.co"
+                    >
+                        <img
+                            className="ms-footer-custom__brand-img ms-footer-custom__brand-img--gov"
+                            src="../../product/assets/img/logo_gov_co.svg"
+                            alt="Gov.co"
+                        />
+                    </a>
+                </div>
+
+                {/* Contenedor para acciones / links (derecha) */}
+                <div className="ms-footer-custom__actions" aria-hidden="true">
+                    {/* Aquí puedes añadir enlaces o botones si los necesitas */}
+                </div>
+            </div>
+        </footer>
     );
 }
 
 Footer.propTypes = {
-    menuItems: PropTypes.array,
-    hideMenuItems: PropTypes.bool,
-    items: PropTypes.array,
-    customFooter: PropTypes.bool,
-    customFooterMessageId: PropTypes.string
+    // no recibimos height ni withResizeDetector en esta versión
 };
-
-Footer.contextTypes = {
-    loadedPlugins: PropTypes.object
-};
-
-Footer.defaultProps = {
-    menuItems: [
-        {
-            type: 'link',
-            href: "https://docs.mapstore.geosolutionsgroup.com/",
-            target: 'blank',
-            glyph: 'book',
-            labelId: 'resourcesCatalog.documentation'
-        },
-        {
-            type: 'link',
-            href: 'https://github.com/geosolutions-it/MapStore2',
-            target: 'blank',
-            label: 'GitHub',
-            glyph: 'github'
-        }
-    ],
-    customFooter: false,
-    customFooterMessageId: 'home.footerCustomHTML'
-};
-
 
 export default createPlugin('Footer', {
-    component: withResizeDetector(Footer)
+    component: Footer
 });

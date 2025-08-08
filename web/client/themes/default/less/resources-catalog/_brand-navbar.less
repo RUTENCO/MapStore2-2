@@ -1,22 +1,254 @@
-// **************
-// Theme
-// **************
+// brandnavbar.less
+// Estilos específicos para BrandNavbar plugin
+// Usa alta especificidad sobre .ms-brand-navbar para evitar que Bootstrap lo sobreescriba.
 
-#ms-components-theme(@theme-vars) {
-    .ms-menu-divider {
-        .border-color-var(@theme-vars[main-border-color]);
-    }
+// --- Variables (ajusta a tu tema) ---
+@gov-blue: #0C5ECA;
+@gov-blue-dark: #084DB0;
+@muted: #6b6b6b;
+@white: #ffffff;
+@accent: rgba(12, 94, 202, 0.08);
+@menu-radius: 8px;
+@shadow: 0 6px 18px rgba(6, 24, 63, 0.12);
+
+// --- Header gov ---
+.ms-header-gov {
+  background-color: @gov-blue;
+  width: 100%;
+  height: 48px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  z-index: 1200;
+}
+.ms-header-gov-img {
+  height: 24px;
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
 }
 
-// **************
-// Layout
-// **************
 
+// --- Brand navbar layout ---
 .ms-brand-navbar {
-    min-height: 38px;
+  min-height: 44px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+  background: linear-gradient(180deg, fade(@white, 98%), fade(@white, 96%));
+  box-shadow: @shadow;
+  z-index: 1199;
 }
 
-.ms-menu-divider {
+/* -------------------------------
+   Especificidad dentro de ms-brand-navbar
+   ------------------------------- */
+.ms-brand-navbar {
+
+  // Logo
+  .ms-brand-navbar-logo {
+    margin-right: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Items right (push)
+  .ms-brand-navbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /*
+    Opción B: Minimal + foco accesible
+    - Estilo limpio (sin marcos rectangulares fuertes)
+    - Indicador de foco visible para accesibilidad
+  */
+  .ms-menu-link,
+  .btn,
+  .btn-default,
+  .dropdown-toggle {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: @gov-blue-dark;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 150ms ease, color 150ms ease, transform 120ms ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .ms-menu-link svg,
+  .btn svg,
+  .glyphicon {
+    font-size: 14px;
+    display: inline-block;
+  }
+
+  .ms-menu-link:hover,
+  .btn:hover,
+  .dropdown-toggle:hover {
+    background: fade(@gov-blue, 4%); // sutil fondo al pasar el mouse
+    transform: translateY(-1px);
+  }
+
+  /* foco sutil y visible (mejor accesibilidad) */
+  .ms-menu-link:focus,
+  .btn:focus,
+  .dropdown-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(12,94,202,0.12);
+    border-radius: 8px;
+  }
+
+  /* cuando está activo/abierto (sin el marco fuerte) */
+  .dropdown.open .dropdown-toggle,
+  .dropdown-toggle[aria-expanded="true"] {
+    background: fade(@gov-blue, 6%);
+  }
+
+  // Tamaño square común en tu UI
+  .square-button-md {
+    padding: 0.45rem;
+    min-width: 36px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Forzar apariencia del icono info-sign (quita posibles fondos azules)
+  .glyphicon-info-sign,
+  .glyphicon.glyphicon-info-sign {
+    background: transparent !important;
+    color: @gov-blue-dark !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  // Divisor entre items
+  .ms-menu-divider {
     height: 1.2rem;
-    border: 1px solid;
+    margin: 0 0.7rem;
+    border-left: 1px solid fade(@muted, 30%);
+    align-self: center;
+  }
+
+  // Dropdowns styling (paneles desplegables)
+  .ms-brand-dropdown, .ms-dropdown {
+    position: relative;
+
+    .dropdown-menu {
+      min-width: 12rem;
+      background: @white;
+      border-radius: @menu-radius;
+      box-shadow: 0 8px 30px rgba(6, 24, 63, 0.12);
+      border: 1px solid fade(@gov-blue, 10%);
+      padding: 0.35rem;
+      margin-top: 0.5rem;
+      transform-origin: top center;
+      transition: transform 160ms ease, opacity 160ms ease;
+      opacity: 1;
+
+      li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        a, button {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          color: darken(@muted, 8%);
+          text-decoration: none;
+          width: 100%;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          transition: background 140ms ease, color 140ms ease;
+          font-size: 0.95rem;
+
+          &:hover, &:focus {
+            background: fade(@gov-blue, 8%);
+            color: @gov-blue-dark;
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* --------------------
+   Responsive
+   -------------------- */
+@media (max-width: 768px) {
+  .ms-brand-navbar {
+    min-height: 56px;
+    padding: 0.4rem 0.8rem;
+    overflow-x: auto;
+  }
+
+  .ms-brand-navbar-logo {
+    margin-right: 0.6rem;
+  }
+
+  .ms-menu-link {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .ms-brand-navbar-right {
+    max-width: 60vw;
+    gap: 0.25rem;
+  }
+
+  // Mobile overlay y panel
+  .ms-mobile-dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(7, 34, 93, 0.2);
+    z-index: 1205;
+  }
+  .ms-mobile-dropdown-menu {
+    position: fixed;
+    top: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 86vw;
+    max-width: 480px;
+    height: auto;
+    max-height: 86vh;
+    background: @white;
+    z-index: 1206;
+    box-shadow: 0 8px 34px rgba(6, 24, 63, 0.14);
+    border-radius: 10px;
+    padding: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ms-mobile-dropdown-menu .ms-dropdown .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
 }

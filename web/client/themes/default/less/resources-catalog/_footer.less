@@ -1,39 +1,127 @@
-// **************
-// Theme
-// **************
+// _footer.less
+// Estilos para Footer personalizado en flujo normal (no fixed)
 
-#ms-components-theme(@theme-vars) {
-    #ms-footer {
-        .color-var(@theme-vars[footer-color]);
-        .background-color-var(@theme-vars[footer-bg]);
-        .border-top-color-var(@theme-vars[main-border-color]);
-        .btn {
-            border: transparent;
-            background: transparent;
-        }
-        a {
-            .color-var(@theme-vars[footer-link-color]);
-            &:hover {
-                .color-var(@theme-vars[footer-link-hover-color]);
-            }
-        }
-    }
+// Variables básicas
+@footer-bg: #1D59C9;
+@footer-height: 96px;
+@footer-padding-x: 80px;
+@footer-text-color: #ffffff;
+@footer-separator: rgba(255,255,255,0.15);
+
+
+
+/* Footer en flujo normal: position: relative para quitar overlay/fixed */
+.ms-footer-custom {
+  position: relative; /* <-- cambiado: ya no está fixed */
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  min-height: @footer-height;
+  background: @footer-bg;
+  color: @footer-text-color;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 @footer-padding-x;
 }
 
-// **************
-// Layout
-// **************
+/* Centro del contenido (alineamiento dentro del footer) */
+.ms-footer-custom__container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
-#ms-footer {
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    left: 0;
-    font-size: 0.75rem;
-    border-top: 1px solid transparent;
-    z-index: 2000;
-    .nav-link,
-    .btn {
-        font-size: 0.75rem;
-    }
+/* Bloque marcas / logos */
+.ms-footer-custom__brands {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* links de marca */
+.ms-footer-custom__brand-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* imagenes de marca */
+.ms-footer-custom__brand-img {
+  display: block;
+  object-fit: contain;
+  height: 58px;
+}
+.ms-footer-custom__brand-img--co {
+  height: 58px;
+  width: auto;
+}
+.ms-footer-custom__brand-img--gov {
+  height: 34px;
+  width: auto;
+}
+
+/* separador vertical entre logos */
+.ms-footer-custom__separator {
+  width: 1px;
+  height: 66px;
+  background: @footer-separator;
+  margin: 0 10px;
+}
+
+/* contenedor para acciones / links (derecha) */
+.ms-footer-custom__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* menú hipotético */
+.ms-footer-custom__menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ms-footer-custom__menu li button,
+.ms-footer-custom__menu li a {
+  background: transparent;
+  border: none;
+  color: @footer-text-color;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.ms-footer-custom__menu li button:hover,
+.ms-footer-custom__menu li a:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ms-footer-custom {
+    padding: 0 16px;
+  }
+
+  .ms-footer-custom__container {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .ms-footer-custom__brands {
+    gap: 12px;
+  }
+
+  .ms-footer-custom__separator {
+    display: none;
+  }
 }
