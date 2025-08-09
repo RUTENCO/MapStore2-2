@@ -17,6 +17,8 @@ import Message from '../../components/I18N/Message';
 
 // Importa los estilos del footer (ajusta la ruta si hace falta)
 import '../../themes/default/less/resources-catalog/_footer.less';
+import coColombia from '../../product/assets/img/co_colombia.png';
+import logoGovCo from '../../product/assets/img/logo_gov_co.svg';
 
 /**
  * Item de menú (compatibilidad en caso de volver a usar menuItems)
@@ -76,7 +78,7 @@ function Footer() {
                     >
                         <img
                             className="ms-footer-custom__brand-img ms-footer-custom__brand-img--co"
-                            src="../../product/assets/img/co_colombia.png"
+                            src={coColombia}
                             alt="Colombia"
                         />
                     </a>
@@ -92,7 +94,7 @@ function Footer() {
                     >
                         <img
                             className="ms-footer-custom__brand-img ms-footer-custom__brand-img--gov"
-                            src="../../product/assets/img/logo_gov_co.svg"
+                            src={logoGovCo}
                             alt="Gov.co"
                         />
                     </a>

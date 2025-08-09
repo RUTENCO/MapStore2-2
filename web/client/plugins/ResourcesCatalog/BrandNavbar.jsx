@@ -22,6 +22,7 @@ import src from '../../product/assets/img/icono_inicio.png';
 
 // Importa tu LESS (ajusta ruta si hace falta)
 import '../../themes/default/less/resources-catalog/_brand-navbar.less';
+import covColombia from '../../product/assets/img/cov_colombia.png';
 
 const ButtonWithTooltip = tooltip(Button);
 
@@ -124,7 +125,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
             {/* Header GOV Colombia */}
             <div className="ms-header-gov" role="banner">
                 <a href="https://www.gov.co/" target="_blank" rel="noopener noreferrer" aria-label="gov.co">
-                    <img src="../../product/assets/img/cov_colombia.png" alt="Gov.co" className="ms-header-gov-img" />
+                    <img src={covColombia} alt="Gov.co" className="ms-header-gov-img" />
                 </a>
             </div>
 
