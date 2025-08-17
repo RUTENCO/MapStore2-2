@@ -29,7 +29,6 @@
   display: block;
 }
 
-
 // --- Brand navbar layout ---
 .ms-brand-navbar {
   min-height: 44px;
@@ -65,8 +64,6 @@
 
   /*
     Opción B: Minimal + foco accesible
-    - Estilo limpio (sin marcos rectangulares fuertes)
-    - Indicador de foco visible para accesibilidad
   */
   .ms-menu-link,
   .btn,
@@ -96,11 +93,10 @@
   .ms-menu-link:hover,
   .btn:hover,
   .dropdown-toggle:hover {
-    background: fade(@gov-blue, 4%); // sutil fondo al pasar el mouse
+    background: fade(@gov-blue, 4%);
     transform: translateY(-1px);
   }
 
-  /* foco sutil y visible (mejor accesibilidad) */
   .ms-menu-link:focus,
   .btn:focus,
   .dropdown-toggle:focus {
@@ -109,13 +105,11 @@
     border-radius: 8px;
   }
 
-  /* cuando está activo/abierto (sin el marco fuerte) */
   .dropdown.open .dropdown-toggle,
   .dropdown-toggle[aria-expanded="true"] {
     background: fade(@gov-blue, 6%);
   }
 
-  // Tamaño square común en tu UI
   .square-button-md {
     padding: 0.45rem;
     min-width: 36px;
@@ -125,7 +119,6 @@
     justify-content: center;
   }
 
-  // Forzar apariencia del icono info-sign (quita posibles fondos azules)
   .glyphicon-info-sign,
   .glyphicon.glyphicon-info-sign {
     background: transparent !important;
@@ -135,7 +128,6 @@
     padding: 0 !important;
   }
 
-  // Divisor entre items
   .ms-menu-divider {
     height: 1.2rem;
     margin: 0 0.7rem;
@@ -143,7 +135,6 @@
     align-self: center;
   }
 
-  // Dropdowns styling (paneles desplegables)
   .ms-brand-dropdown, .ms-dropdown {
     position: relative;
 
@@ -192,7 +183,7 @@
 }
 
 /* --------------------
-   Responsive
+   Responsive (navbar itself)
    -------------------- */
 @media (max-width: 768px) {
   .ms-brand-navbar {
@@ -215,7 +206,6 @@
     gap: 0.25rem;
   }
 
-  // Mobile overlay y panel
   .ms-mobile-dropdown-overlay {
     position: fixed;
     top: 0;

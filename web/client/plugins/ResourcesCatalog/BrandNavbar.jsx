@@ -257,17 +257,17 @@ BrandNavbar.defaultProps = {
     leftMenuItems: [
         {
             type: 'dropdown',
-            labelId: 'Página 1',
+            labelId: 'Inicio',
             glyph: 'globe',
             variant: 'default',
             items: [
-                { type: 'link', labelId: 'Subpágina 1', href: '/pagina1/sub1' },
-                { type: 'link', labelId: 'Subpágina 2', href: '/pagina1/sub2' }
+                { type: 'link', labelId: 'Portafolio', href: 'https://sites.google.com/view/sav-cardenas/publications?authuser=1' },
+                { type: 'link', labelId: 'Servicios', href: '/pagina1/sub2' }
             ]
         },
         {
             type: 'dropdown',
-            labelId: 'Página 2',
+            labelId: 'Quienes Somos',
             glyph: 'paperclip',
             variant: 'default',
             items: [
@@ -277,7 +277,7 @@ BrandNavbar.defaultProps = {
         },
         {
             type: 'dropdown',
-            labelId: 'Página 3',
+            labelId: 'Nuestro Blog',
             glyph: 'folder-open',
             variant: 'default',
             items: [
@@ -287,7 +287,7 @@ BrandNavbar.defaultProps = {
         },
         {
             type: 'dropdown',
-            labelId: 'Página 4',
+            labelId: 'Líneas de Investigación',
             glyph: 'question-sign',
             variant: 'default',
             items: [
