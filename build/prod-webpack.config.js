@@ -12,7 +12,7 @@ const paths = {
     code: path.join(__dirname, "..", "web", "client")
 };
 
-const favicon = path.join(__dirname, '..', 'web', 'client', 'product', 'assets', 'img', 'favicon.png');
+const favicon = path.join(__dirname, '..', 'web', 'client', 'product', 'assets', 'img', 'logo_base_favicon.png');
 
 module.exports = require('./buildConfig')({
     bundles: {
