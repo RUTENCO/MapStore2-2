@@ -21,7 +21,7 @@ import MenuNavLink from './components/MenuNavLink';
 import src from '../../product/assets/img/icono_inicio.png';
 
 // Importa tu LESS (ajusta ruta si hace falta)
-import '../../themes/default/less/resources-catalog/_brand-navbar.less';
+// import '../../themes/default/less/resources-catalog/_brand-navbar.less';
 import covColombia from '../../product/assets/img/cov_colombia.png';
 
 const ButtonWithTooltip = tooltip(Button);

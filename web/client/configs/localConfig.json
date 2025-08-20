@@ -923,6 +923,7 @@
           }
         }
       },
+      { "name": "FormPanel" },
       { "name": "Footer" },
       { "name": "About" },
       {

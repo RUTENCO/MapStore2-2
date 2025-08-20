@@ -402,6 +402,15 @@
       "scrollTop": "Volver al principio de la página",
       "footerCustomHTML": "<div><p>Inserte HTML personalizado en las traducciones para generar un pie de página personalizado.</p></div>"
     },
+    "form": {
+      "title": "Formulario PQRS",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "description": "Descripción",
+      "submit": "Enviar",
+      "successMessage": "Su PQRS ha sido enviada correctamente.",
+      "errorMessage": "Hubo un error al enviar su PQRS. Por favor, inténtelo de nuevo."
+    },
     "cookiesPolicyNotification": {
       "title": "Este sitio usa cookies",
       "message": "Si sigue usando este sitio, asumimos que acepta el uso de cookies.",
