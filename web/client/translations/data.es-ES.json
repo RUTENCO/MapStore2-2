@@ -411,6 +411,10 @@
       "successMessage": "Su PQRS ha sido enviada correctamente.",
       "errorMessage": "Hubo un error al enviar su PQRS. Por favor, inténtelo de nuevo."
     },
+    "globe": {
+      "title": "Amanecer",
+      "description": "Explora el mundo en 3D"
+    },
     "cookiesPolicyNotification": {
       "title": "Este sitio usa cookies",
       "message": "Si sigue usando este sitio, asumimos que acepta el uso de cookies.",
