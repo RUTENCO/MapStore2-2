@@ -1,0 +1,119 @@
+# Sistema SAT - Alerta Temprana de Deslizamientos
+# Estructura de contenedores Docker para el pipeline completo
+
+name: sat_system
+
+services:
+  # ============================================================================
+  # SERVICIO 1: PROCESADOR DE LLUVIA IDEAM
+  # ============================================================================
+  lluvia-processor:
+    build:
+      context: ./lluvia_processor
+      dockerfile: Dockerfile
+    container_name: sat_lluvia_processor
+    environment:
+      - IDEAM_API_TOKEN=${IDEAM_API_TOKEN}
+      - DAYS_BACK=${DAYS_BACK:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data/input:/app/data/input:ro
+      - ./data/output/lluvia:/app/data/output/lluvia:rw
+      - ./logs:/app/logs:rw
+    networks:
+      - sat_network
+    restart: "no"
+    profiles:
+      - lluvia
+      - full-pipeline
+
+  # ============================================================================
+  # SERVICIO 2: MODELO SAT DE DESLIZAMIENTOS
+  # ============================================================================
+  modelo-sat:
+    build:
+      context: ./modelo_sat
+      dockerfile: Dockerfile
+    container_name: sat_modelo_deslizamientos
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - MODEL_URL=${MODEL_URL}
+    volumes:
+      - ./data/input:/app/data/input:ro
+      - ./data/output/lluvia:/app/data/output/lluvia:ro
+      - ./data/output/modelo:/app/data/output/modelo:rw
+      - ./logs:/app/logs:rw
+    networks:
+      - sat_network
+    depends_on:
+      - lluvia-processor
+    restart: "no"
+    profiles:
+      - modelo
+      - full-pipeline
+
+  # ============================================================================
+  # SERVICIO 3: EXPORTADOR GEOTIFF
+  # ============================================================================
+  geotiff-exporter:
+    build:
+      context: ./geotiff_exporter
+      dockerfile: Dockerfile
+    container_name: sat_geotiff_exporter
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - INTERPOLATION_METHOD=${INTERPOLATION_METHOD:-idw}
+      - PIXEL_SIZE=${PIXEL_SIZE:-2000}
+      - IDW_POWER=${IDW_POWER:-3}
+    volumes:
+      - ./data/input:/app/data/input:ro
+      - ./data/output/modelo:/app/data/output/modelo:ro
+      - ./data/output/geotiff:/app/data/output/geotiff:rw
+      - ./logs:/app/logs:rw
+    networks:
+      - sat_network
+    depends_on:
+      - modelo-sat
+    restart: "no"
+    profiles:
+      - geotiff
+      - full-pipeline
+
+  # ============================================================================
+  # SERVICIO DE ORQUESTACIÓN (OPCIONAL)
+  # ============================================================================
+  sat-orchestrator:
+    build:
+      context: ./sat_orchestrator
+      dockerfile: Dockerfile
+    image: sat_system-sat-orchestrator:latest
+    container_name: sat_orchestrator
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-10 01 * * *}  # Diario a las 8:10 PM (hora local)
+      - RUN_ON_START=${RUN_ON_START:-false}          # true = ejecutar al iniciar
+    volumes:
+      - ./data:/app/data:rw
+      - ./logs:/app/logs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - sat_network
+    restart: unless-stopped  # Reiniciar automáticamente si se detiene
+    profiles:
+      - orchestrator
+
+
+
+networks:
+  sat_network:
+    driver: bridge
+
+volumes:
+  sat_data:
+    driver: local
+  sat_logs:
+    driver: local

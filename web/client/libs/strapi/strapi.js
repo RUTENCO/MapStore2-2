@@ -1,0 +1,10 @@
+const STRAPI_HOST = "http://localhost:1337"; // process.env.STRAPI_HOST;
+const STRAPI_TOKEN = "0cb204ea623221f38a1e0feaa9b4d3e0119a241f0924233ea705765c9e0d00a9112618f1c1e3109c917ed393b4594d63c6c5b1345d8230ee171d22b38eedf51130e310a8516776335811c1c350341e72836b9554d9a78866406d9ed9de1fe4d2ffa589f5da3d170b6c6280aa7eb7f0ad2479a936bd5fc6b610b821b99cf4b698"; // process.env.STRAPI_TOKEN;
+
+export function query(url) {
+    return fetch(`${STRAPI_HOST}/api/${url}`, {
+        headers: {
+            Authorization: `Bearer ${STRAPI_TOKEN}`
+        }
+    }).then(response => response.json());
+}

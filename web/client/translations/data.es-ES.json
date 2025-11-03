@@ -393,7 +393,7 @@
     },
     "home": {
       "open": "Abrir",
-      "shortDescription": "<h1>Grupo de investigación en infraestructura Gll - UdeA</h1><p>Bienvenido al prortal geográfico del grupo de investigación en infraestructura Gll - UdeA</p>",
+      "shortDescription": "<h1>Modelos de sistemas de alertas tempranas</h1><p>Bienvenido al portal geográfico</p>",
       "forkMeOnGitHub": "Fork me on GitHub",
       "description": "MapStore está hecho para crear, guardar y compartir de forma simple e intuitiva mapas y composiciones creados a partir de contenidos de servidores tales como OpenStreetMap, Google Maps, MapQuest o  cualquier otro servidor que proporcione protocolos estándar tales como OGC WMS, WFS, WMTS o TMS y otros.<br/>Visite nuestra <a href=\"https://mapstore.readthedocs.io/en/latest/\">página principal</a> para más detalles.",
       "Applications": "Aplicaciones",

@@ -12,8 +12,8 @@ import HTML from '../../components/I18N/HTML';
 import Text from '../../components/layout/Text';
 import { Jumbotron } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import src from '../../product/assets/img/banner_udea.jpg';
-
+import src from '../../product/assets/img/banner-Andina.png';
+import miniciencias from '../../product/assets/img/logo-minciencias.png';
 /**
  * This plugin shows a main description in the homepage
  * @memberof plugins
@@ -42,7 +42,17 @@ function HomeDescription({
         >
             {descriptionFooterMessageId
                 ? <Text textAlign="center" classNames={['_relative']}>
-                    <HTML msgId={descriptionFooterMessageId}/>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <img
+                            src={miniciencias}
+                            alt="Miniciencias Logo"
+                            style={{ height: '100px',
+                                width: '200px',
+                                paddingLeft: '10px',
+                                objectFit: 'contain' }}
+                        />
+                        <HTML msgId={descriptionFooterMessageId}/>
+                    </div>
                 </Text>
                 : null}
         </Jumbotron>

@@ -1,0 +1,10 @@
+pandas==1.4.1
+numpy==1.21.2
+scikit-learn==1.0.2
+geopandas==0.10.2
+fiona==1.8.20
+pyproj==3.4.1
+shapely==2.0.1
+requests==2.32.4
+joblib==1.0.1
+gdown==5.2.0

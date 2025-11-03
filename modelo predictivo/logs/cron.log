@@ -1,0 +1,18 @@
+2025-10-09 01:18:09,445 - __main__ - INFO - === SAT ORCHESTRATOR INICIADO ===
+2025-10-09 01:18:09,446 - __main__ - INFO - Modo: full
+2025-10-09 01:18:09,477 - __main__ - INFO - SATOrchestrator inicializado
+2025-10-09 01:18:09,478 - __main__ - INFO - Proyecto Docker Compose: sat_system
+2025-10-09 01:18:09,478 - __main__ - INFO - === INICIANDO PIPELINE COMPLETO SAT ===
+2025-10-09 01:18:09,666 - __main__ - INFO - ✓ Servicio disponible: lluvia-processor
+2025-10-09 01:18:09,667 - __main__ - INFO - ✓ Servicio disponible: modelo-sat
+2025-10-09 01:18:09,667 - __main__ - INFO - ✓ Servicio disponible: geotiff-exporter
+2025-10-09 01:18:09,668 - __main__ - INFO - 
+--- Paso 1: lluvia-processor ---
+2025-10-09 01:18:09,669 - __main__ - INFO - === Ejecutando servicio: lluvia-processor ===
+2025-10-09 01:18:09,683 - __main__ - INFO - Iniciando contenedor lluvia-processor
+2025-10-09 01:18:18,504 - __main__ - INFO - Esperando completación del servicio lluvia-processor (sin límite de tiempo)
+2025-10-09 01:51:56,529 - __main__ - ERROR - Error ejecutando servicio lluvia-processor: 500 Server Error for http+docker://localhost/v1.51/containers/bdac3d15c9d663a7c65f27084522c1c41fa8c14a5d93eaf59caee1bac141f833/json: Internal Server Error
+2025-10-09 01:51:57,403 - __main__ - ERROR - Servicio lluvia-processor falló: 500 Server Error for http+docker://localhost/v1.51/containers/bdac3d15c9d663a7c65f27084522c1c41fa8c14a5d93eaf59caee1bac141f833/json: Internal Server Error
+2025-10-09 01:51:57,407 - __main__ - ERROR - ❌ Pipeline incompleto
+2025-10-09 01:51:57,527 - __main__ - INFO - Resultados guardados en: /app/logs/ultima_ejecucion.json
+2025-10-09 01:51:57,528 - __main__ - INFO - Pipeline completado en 2027.93s

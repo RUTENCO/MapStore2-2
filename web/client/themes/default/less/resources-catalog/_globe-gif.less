@@ -19,6 +19,7 @@
     }
 
     .ms-globe-wrapper {
+        margin-top: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -27,10 +28,23 @@
 
     .ms-globe-gif {
         max-width: 350px;
-        // border: 2px solid @ms2-color-primary;
+        border: 2px solid @ms2-color-primary;
         border-radius: 50%;
-        background: black;
+        //background: black;
     }
+
+    .ms-wrf-gif {
+        max-width: 350px;
+        border: 2px solid @ms2-color-primary;
+    }
+
+    .ms-globe-gif-row {
+    display: flex;
+    flex-direction: row;
+    gap: 50px; // separa los gifs
+    justify-content: center;
+    align-items: center;
+}
 
     .ms-globe-datetime {
     font-size: 14px;

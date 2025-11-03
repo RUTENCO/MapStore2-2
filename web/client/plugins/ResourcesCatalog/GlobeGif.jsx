@@ -10,13 +10,25 @@ import { createPlugin } from '../../utils/PluginsUtils';
 import { withResizeDetector } from 'react-resize-detector';
 import Message from '../../components/I18N/Message';
 
+// Importamos la función para obtener datos de Strapi
+// import { getHomeInfo } from '../../libs/strapi/get-home-info.js';
+
 // Importamos el gif
 import amanecerGif from '../../product/assets/img/amanecer.gif';
+import wrfGif from '../../product/assets/img/wrf.gif';
 
 function GlobeGif() {
+
+    // const [wrfGifUrl, setWrfGifUrl] = useState(null);
     const [dateTime, setDateTime] = useState(new Date());
 
-    // Actualiza la fecha y hora cada segundo
+    /* useEffect(() => {
+        getHomeInfo().then(({ image }) => {
+            setWrfGifUrl(image);
+        });
+    }, []); */
+
+
     useEffect(() => {
         const interval = setInterval(() => {
             setDateTime(new Date());
@@ -24,7 +36,6 @@ function GlobeGif() {
         return () => clearInterval(interval);
     }, []);
 
-    // Formateamos la fecha y hora
     const fecha = dateTime.toLocaleDateString('es-CO', {
         weekday: 'long',
         year: 'numeric',
@@ -41,7 +52,7 @@ function GlobeGif() {
             <p className="ms-globe-datetime">
                 {fecha} — {hora}
             </p>
-            <div className="ms-globe-wrapper">
+            <div className="ms-globe-wrapper ms-globe-gif-row">
                 <a href="https://zoom.earth/" target="_blank" rel="noopener noreferrer">
                     <img
                         src={amanecerGif}
@@ -50,8 +61,25 @@ function GlobeGif() {
                         style={{ cursor: 'pointer' }}
                     />
                 </a>
+                <a href="#" target="_self" rel="noopener noreferrer">
+                    <img
+                        src={wrfGif} // wrfGifUrl
+                        alt="WRF Model GIF"
+                        className="ms-wrf-gif"
+                        style={{ cursor: 'pointer' }}
+                    />
+                </a>
+                {/* {wrfGif && ( // wrfGifUrl
+                    <a href="#" target="_self" rel="noopener noreferrer">
+                        <img
+                            src={wrfGif} // wrfGifUrl
+                            alt="WRF Model GIF"
+                            className="ms-wrf-gif"
+                            style={{ cursor: 'pointer' }}
+                        />
+                    </a>
+                )} */}
             </div>
-
         </div>
     );
 }

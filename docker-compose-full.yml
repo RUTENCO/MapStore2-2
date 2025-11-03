@@ -1,0 +1,202 @@
+
+
+name: sat_mapstore_system
+
+services:
+  lluvia-processor:
+    build:
+      context: ./modelo predictivo/lluvia_processor
+      dockerfile: Dockerfile
+    container_name: sat_lluvia_processor
+    environment:
+      - IDEAM_API_TOKEN=${IDEAM_API_TOKEN}
+      - DAYS_BACK=${DAYS_BACK:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./modelo predictivo/data/input:/app/data/input:ro
+      - ./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:rw
+      - ./modelo predictivo/logs:/app/logs:rw
+    networks:
+      - sat_network
+    restart: "no"
+    profiles:
+      - lluvia
+      - full-pipeline
+
+
+  modelo-sat:
+    build:
+      context: ./modelo predictivo/modelo_sat
+      dockerfile: Dockerfile
+    container_name: sat_modelo_deslizamientos
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - MODEL_URL=${MODEL_URL}
+    volumes:
+      - ./modelo predictivo/data/input:/app/data/input:ro
+      - ./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:ro
+      - ./modelo predictivo/data/output/modelo:/app/data/output/modelo:rw
+      - ./modelo predictivo/logs:/app/logs:rw
+    networks:
+      - sat_network
+    depends_on:
+      - lluvia-processor
+    restart: "no"
+    profiles:
+      - modelo
+      - full-pipeline
+
+
+  geotiff-exporter:
+    build:
+      context: ./modelo predictivo/geotiff_exporter
+      dockerfile: Dockerfile
+    container_name: sat_geotiff_exporter
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - INTERPOLATION_METHOD=${INTERPOLATION_METHOD:-idw}
+      - PIXEL_SIZE=${PIXEL_SIZE:-2000}
+      - IDW_POWER=${IDW_POWER:-3}
+    volumes:
+      - ./modelo predictivo/data/input:/app/data/input:ro
+      - ./modelo predictivo/data/output/modelo:/app/data/output/modelo:ro
+      - ./modelo predictivo/data/output/geotiff:/app/data/output/geotiff:rw
+      - ./modelo predictivo/logs:/app/logs:rw
+      - geoserver_uploads:/mnt/uploads:rw
+    networks:
+      - sat_network
+      - mapstore-network
+    depends_on:
+      - modelo-sat
+      - geoserver
+    restart: "no"
+    profiles:
+      - geotiff
+      - full-pipeline
+
+
+  sat-orchestrator:
+    build:
+      context: ./modelo predictivo/sat_orchestrator
+      dockerfile: Dockerfile
+    image: sat_system-sat-orchestrator:latest
+    container_name: sat_orchestrator
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-10 01 * * *}
+      - RUN_ON_START=${RUN_ON_START:-false}
+    volumes:
+      - ./modelo predictivo/data:/app/data:rw
+      - ./modelo predictivo/logs:/app/logs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - sat_network
+      - mapstore-network
+    restart: unless-stopped
+    profiles:
+      - orchestrator
+
+
+  postgres:
+    build:
+      context: ./docker/postgres/
+    image: geosolutions-mapstore/postgis
+    container_name: postgres
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: geostore
+    volumes:
+      - pg_data:${PGDATA:-/var/lib/postgresql/data}:rw
+    ports:
+      - "5432:5432"
+    networks:
+      - mapstore-network
+    profiles:
+      - mapstore
+
+
+  geoserver:
+    image: kartoza/geoserver:2.21.0
+    container_name: geoserver
+    environment:
+      GEOSERVER_ADMIN_USER: admin
+      GEOSERVER_ADMIN_PASSWORD: geoserver
+    ports:
+      - "8081:8080"
+    volumes:
+      - geoserver_data:/opt/geoserver/data_dir
+      - geoserver_uploads:/mnt/uploads
+    depends_on:
+      - postgres
+    networks:
+      - mapstore-network
+    profiles:
+      - mapstore
+
+
+  mapstore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        OVR: "geostore-datasource-ovr.properties"
+        MAPSTORE_WEBAPP_SRC: "./product/target/mapstore.war"
+    container_name: mapstore
+    command: [ "wait-for-postgres", "postgres", "5432", "postgres", "postgres", "catalina.sh", "run" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      geoserver:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - mapstore_data:/usr/local/tomcat/datadir
+      - ./docker/geostore-datasource-ovr-postgres.properties:/usr/local/tomcat/conf/geostore-datasource-ovr.properties:ro
+    networks:
+      - mapstore-network
+    profiles:
+      - mapstore
+
+
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    volumes:
+      - ./docker/mapstore.conf:/etc/nginx/conf.d/default.conf:rw
+    ports:
+      - "80:80"
+    depends_on:
+      - mapstore
+    networks:
+      - mapstore-network
+    profiles:
+      - mapstore
+
+
+networks:
+  sat_network:
+    driver: bridge
+  mapstore-network:
+    driver: bridge
+
+volumes:
+  sat_data:
+    driver: local
+  sat_logs:
+    driver: local
+  pg_data:
+  geoserver_data:
+  geoserver_uploads:
+  mapstore_data:

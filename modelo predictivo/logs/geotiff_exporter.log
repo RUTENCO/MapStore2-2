@@ -1,0 +1,25 @@
+2025-10-06 05:05:38,648 - __main__ - INFO - === Iniciando SAT GeoTIFF Exporter ===
+2025-10-06 05:05:38,649 - __main__ - INFO - GeoTIFFExporter inicializado
+2025-10-06 05:05:38,650 - __main__ - INFO - Ruta entrada: /app/data/output/modelo
+2025-10-06 05:05:38,658 - __main__ - INFO - Ruta salida: /app/data/output/geotiff
+2025-10-06 05:05:38,665 - __main__ - INFO - === Iniciando procesamiento GeoTIFF (siguiendo notebook) ===
+2025-10-06 05:05:38,681 - __main__ - INFO - Leyendo geopackage...
+2025-10-06 05:05:38,872 - __main__ - INFO - Geodataframe cargado: 323 puntos
+2025-10-06 05:05:38,876 - __main__ - INFO - Ejecutando interpolación...
+2025-10-06 05:05:48,560 - __main__ - INFO - GeoTIFF guardado en: /app/data/output/geotiff/prob_geotif.tif
+2025-10-06 05:05:48,563 - __main__ - INFO - === Procesamiento GeoTIFF completado exitosamente ===
+2025-10-06 05:05:48,574 - __main__ - INFO - Procesamiento exitoso
+
+
+
+2025-10-09 03:02:01,460 - __main__ - INFO - === Iniciando SAT GeoTIFF Exporter ===
+2025-10-09 03:02:01,461 - __main__ - INFO - GeoTIFFExporter inicializado
+2025-10-09 03:02:01,462 - __main__ - INFO - Ruta entrada: /app/data/output/modelo
+2025-10-09 03:02:01,462 - __main__ - INFO - Ruta salida: /app/data/output/geotiff
+2025-10-09 03:02:01,463 - __main__ - INFO - === Iniciando procesamiento GeoTIFF (siguiendo notebook) ===
+2025-10-09 03:02:01,464 - __main__ - INFO - Leyendo geopackage...
+2025-10-09 03:02:01,769 - __main__ - INFO - Geodataframe cargado: 321 puntos
+2025-10-09 03:02:01,770 - __main__ - INFO - Ejecutando interpolación...
+2025-10-09 03:02:12,143 - __main__ - INFO - GeoTIFF guardado en: /app/data/output/geotiff/prob_geotif.tif
+2025-10-09 03:02:12,144 - __main__ - INFO - === Procesamiento GeoTIFF completado exitosamente ===
+2025-10-09 03:02:12,147 - __main__ - INFO - Procesamiento exitoso
