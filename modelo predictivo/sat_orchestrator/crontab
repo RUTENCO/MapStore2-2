@@ -1,2 +1,2 @@
 # SAT Pipeline - Ejecutar diariamente a las 8:10 PM (01:10 UTC)
-00 01 * * * root /usr/local/bin/python /app/src/orchestrator.py --mode full >> /app/logs/cron.log 2>&1
+00 02 * * * root /usr/local/bin/python /app/src/orchestrator.py --mode full >> /app/logs/cron.log 2>&1
