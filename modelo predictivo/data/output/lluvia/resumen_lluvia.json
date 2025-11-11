@@ -1,8 +1,8 @@
 {
-  "fecha_datos": "2025-10-07",
-  "timestamp_proceso": "20251009_030137",
-  "total_estaciones": 396,
-  "estaciones_con_datos": 263,
+  "fecha_datos": "2025-11-03",
+  "timestamp_proceso": "20251104_230532",
+  "total_estaciones": 405,
+  "estaciones_con_datos": 226,
   "columnas_lluvia": [
     "daily rain",
     "1-rain ant.rain",
@@ -13,33 +13,33 @@
   ],
   "estadisticas": {
     "daily rain": {
-      "promedio": 4.01949494949495,
-      "maximo": 115.89999999999999,
+      "promedio": 5.832014814814815,
+      "maximo": 251.0,
       "minimo": 0.0
     },
     "1-rain ant.rain": {
-      "promedio": 5.5159797979797975,
-      "maximo": 153.2,
+      "promedio": 1.2876172839506173,
+      "maximo": 113.7,
       "minimo": 0.0
     },
     "2-rain ant.rain": {
-      "promedio": 9.369858585858585,
-      "maximo": 272.6,
+      "promedio": 3.865261728395062,
+      "maximo": 167.89999999999998,
       "minimo": 0.0
     },
     "3-rain ant.rain": {
-      "promedio": 13.11180303030303,
-      "maximo": 405.90000000000003,
+      "promedio": 8.742525925925927,
+      "maximo": 239.29999999999995,
       "minimo": 0.0
     },
     "15-rain ant.rain": {
-      "promedio": 65.50883585858587,
-      "maximo": 2486.2999999999997,
+      "promedio": 79.93241234567903,
+      "maximo": 1589.6,
       "minimo": 0.0
     },
     "30-rain ant.rain": {
-      "promedio": 120.91569191919193,
-      "maximo": 6844.6,
+      "promedio": 177.18933580246917,
+      "maximo": 3593.0,
       "minimo": 0.0
     }
   },

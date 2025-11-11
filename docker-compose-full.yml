@@ -85,9 +85,10 @@ services:
     image: sat_system-sat-orchestrator:latest
     container_name: sat_orchestrator
     environment:
+      - TZ=America/Bogota
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - PYTHONUNBUFFERED=1
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-10 01 * * *}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-00 01 * * *}
       - RUN_ON_START=${RUN_ON_START:-false}
     volumes:
       - ./modelo predictivo/data:/app/data:rw

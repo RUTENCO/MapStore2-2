@@ -28,3 +28,6 @@ site
 .DS_Store
 venv
 __pycache__
+
+# Environment variables with sensitive information
+.env

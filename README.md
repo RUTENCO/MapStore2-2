@@ -189,3 +189,30 @@ Here below is a small list of organizations using MapStore either directly or th
 - [Nordeste Municipality - Portugal](https://sigweb.cmnordeste.pt/mapstore/#/)
 - [Corvo Muncipality - Portugal](https://geocorvo.pt/mapstore/#/)
 - [Lajes das Flores Municipality - Portal](https://sigweb.cmlajesdasflores.pt/#/)
+
+## Environment Variables Configuration
+
+This MapStore instance uses environment variables for sensitive configuration. Before building or running the application, you need to configure the following:
+
+### Setup Steps
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file with your actual values:
+   ```
+   # Frontend Environment Variables
+   WEB3FORMS_ACCESS_KEY=your_actual_web3forms_key_here
+   
+   # SAT Sistema de Alerta Temprana
+   IDEAM_API_TOKEN=your_actual_ideam_token_here
+   # ... other variables
+   ```
+
+### Security Note
+
+- The `.env` file is included in `.gitignore` to prevent accidental commit of sensitive information
+- Use `.env.example` as a template for required variables
+- Frontend environment variables are injected at build time using webpack DefinePlugin

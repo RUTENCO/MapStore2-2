@@ -1,50 +1,47 @@
-2025-10-06 04:48:26,660 - __main__ - INFO - === Iniciando SAT Modelo Predicción ===
-2025-10-06 04:48:26,661 - __main__ - INFO - ModeloSAT inicializado
-2025-10-06 04:48:26,662 - __main__ - INFO - Ruta entrada: /app/data/output/lluvia
-2025-10-06 04:48:26,664 - __main__ - INFO - Ruta salida: /app/data/output/modelo
-2025-10-06 04:48:26,665 - __main__ - INFO - Ruta modelos: /app/models
-2025-10-06 04:48:26,666 - __main__ - INFO - === Iniciando procesamiento modelo SAT (siguiendo notebook) ===
-2025-10-06 04:48:26,679 - __main__ - INFO - Archivo de lluvia: /app/data/output/lluvia/lluvia_procesada_latest.csv
-2025-10-06 04:48:26,679 - __main__ - INFO - Todos los archivos de entrada están disponibles
-2025-10-06 04:48:26,680 - __main__ - INFO - Descargando modelo desde Google Drive...
-2025-10-06 04:48:48,966 - __main__ - INFO - Modelo descargado exitosamente: /app/models/finalized_model_RF_andina_ideam.sav
-2025-10-06 04:48:48,968 - __main__ - INFO - Cargando archivo IDEAM...
-2025-10-06 04:48:48,998 - __main__ - INFO - Filtrando variables del modelo: ['daily rain', '1-rain ant.rain', '3-rain ant.rain', '15-rain ant.rain', '30-rain ant.rain']
-2025-10-06 04:48:49,006 - __main__ - INFO - Ejecutando modelo de predicción...
-2025-10-06 04:48:49,014 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
-2025-10-06 04:48:49,270 - __main__ - INFO - Modelo cargado exitosamente con joblib
-2025-10-06 04:48:49,339 - __main__ - INFO - Modelo ejecutado con StandardScaler y predict_proba
-2025-10-06 04:48:49,356 - __main__ - INFO - Cargando estaciones...
-2025-10-06 04:48:49,745 - __main__ - INFO - Haciendo merge de resultados...
-2025-10-06 04:48:49,779 - __main__ - INFO - Exportando resultados...
-2025-10-06 04:48:51,048 - __main__ - INFO - Archivo GPKG exportado: /app/data/output/modelo/prob_deslizamientos.gpkg (para geotiff_exporter)
-2025-10-06 04:48:51,101 - __main__ - INFO - Archivo CSV exportado: /app/data/output/modelo/prob_deslizamientos.csv (para análisis)
-2025-10-06 04:48:51,104 - __main__ - INFO - Procesadas 323 estaciones - Probabilidad promedio: 0.7393
-2025-10-06 04:48:51,105 - __main__ - INFO - === Procesamiento modelo SAT completado exitosamente ===
-2025-10-06 04:48:51,107 - __main__ - INFO - Procesamiento exitoso
-
-
-
-2025-10-09 03:01:56,348 - __main__ - INFO - === Iniciando SAT Modelo Predicción ===
-2025-10-09 03:01:56,349 - __main__ - INFO - ModeloSAT inicializado
-2025-10-09 03:01:56,350 - __main__ - INFO - Ruta entrada: /app/data/output/lluvia
-2025-10-09 03:01:56,350 - __main__ - INFO - Ruta salida: /app/data/output/modelo
-2025-10-09 03:01:56,351 - __main__ - INFO - Ruta modelos: /app/models
-2025-10-09 03:01:56,351 - __main__ - INFO - === Iniciando procesamiento modelo SAT (siguiendo notebook) ===
-2025-10-09 03:01:56,357 - __main__ - INFO - Archivo de lluvia: /app/data/output/lluvia/lluvia_procesada_latest.csv
-2025-10-09 03:01:56,357 - __main__ - INFO - Todos los archivos de entrada están disponibles
-2025-10-09 03:01:56,358 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
-2025-10-09 03:01:56,358 - __main__ - INFO - Cargando archivo IDEAM...
-2025-10-09 03:01:56,370 - __main__ - INFO - Filtrando variables del modelo: ['daily rain', '1-rain ant.rain', '3-rain ant.rain', '15-rain ant.rain', '30-rain ant.rain']
-2025-10-09 03:01:56,373 - __main__ - INFO - Ejecutando modelo de predicción...
-2025-10-09 03:01:56,375 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
-2025-10-09 03:01:56,549 - __main__ - INFO - Modelo cargado exitosamente con joblib
-2025-10-09 03:01:56,578 - __main__ - INFO - Modelo ejecutado con StandardScaler y predict_proba
-2025-10-09 03:01:56,589 - __main__ - INFO - Cargando estaciones...
-2025-10-09 03:01:57,034 - __main__ - INFO - Haciendo merge de resultados...
-2025-10-09 03:01:57,053 - __main__ - INFO - Exportando resultados...
-2025-10-09 03:01:57,454 - __main__ - INFO - Archivo GPKG exportado: /app/data/output/modelo/prob_deslizamientos.gpkg (para geotiff_exporter)
-2025-10-09 03:01:57,472 - __main__ - INFO - Archivo CSV exportado: /app/data/output/modelo/prob_deslizamientos.csv (para análisis)
-2025-10-09 03:01:57,474 - __main__ - INFO - Procesadas 321 estaciones - Probabilidad promedio: 0.7533
-2025-10-09 03:01:57,474 - __main__ - INFO - === Procesamiento modelo SAT completado exitosamente ===
-2025-10-09 03:01:57,475 - __main__ - INFO - Procesamiento exitoso
+2025-11-04 01:01:58,711 - __main__ - INFO - === Iniciando SAT Modelo Predicción ===
+2025-11-04 01:01:58,712 - __main__ - INFO - ModeloSAT inicializado
+2025-11-04 01:01:58,713 - __main__ - INFO - Ruta entrada: /app/data/output/lluvia
+2025-11-04 01:01:58,713 - __main__ - INFO - Ruta salida: /app/data/output/modelo
+2025-11-04 01:01:58,714 - __main__ - INFO - Ruta modelos: /app/models
+2025-11-04 01:01:58,714 - __main__ - INFO - === Iniciando procesamiento modelo SAT (siguiendo notebook) ===
+2025-11-04 01:01:58,718 - __main__ - INFO - Archivo de lluvia: /app/data/output/lluvia/lluvia_procesada_latest.csv
+2025-11-04 01:01:58,718 - __main__ - INFO - Todos los archivos de entrada están disponibles
+2025-11-04 01:01:58,719 - __main__ - INFO - Descargando modelo desde Google Drive...
+2025-11-04 01:02:08,861 - __main__ - INFO - Modelo descargado exitosamente: /app/models/finalized_model_RF_andina_ideam.sav
+2025-11-04 01:02:08,862 - __main__ - INFO - Cargando archivo IDEAM...
+2025-11-04 01:02:08,879 - __main__ - INFO - Filtrando variables del modelo: ['daily rain', '1-rain ant.rain', '3-rain ant.rain', '15-rain ant.rain', '30-rain ant.rain']
+2025-11-04 01:02:08,882 - __main__ - INFO - Ejecutando modelo de predicción...
+2025-11-04 01:02:08,885 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
+2025-11-04 01:02:08,963 - __main__ - INFO - Modelo cargado exitosamente con joblib
+2025-11-04 01:02:08,993 - __main__ - INFO - Modelo ejecutado con StandardScaler y predict_proba
+2025-11-04 01:02:08,995 - __main__ - INFO - Cargando estaciones...
+2025-11-04 01:02:09,204 - __main__ - INFO - Haciendo merge de resultados...
+2025-11-04 01:02:09,214 - __main__ - INFO - Exportando resultados...
+2025-11-04 01:02:09,463 - __main__ - INFO - Archivo GPKG exportado: /app/data/output/modelo/prob_deslizamientos.gpkg (para geotiff_exporter)
+2025-11-04 01:02:09,483 - __main__ - INFO - Archivo CSV exportado: /app/data/output/modelo/prob_deslizamientos.csv (para análisis)
+2025-11-04 01:02:09,484 - __main__ - INFO - Procesadas 322 estaciones - Probabilidad promedio: 0.7007
+2025-11-04 01:02:09,484 - __main__ - INFO - === Procesamiento modelo SAT completado exitosamente ===
+2025-11-04 01:02:09,485 - __main__ - INFO - Procesamiento exitoso
+2025-11-04 23:05:39,145 - __main__ - INFO - === Iniciando SAT Modelo Predicción ===
+2025-11-04 23:05:39,149 - __main__ - INFO - ModeloSAT inicializado
+2025-11-04 23:05:39,151 - __main__ - INFO - Ruta entrada: /app/data/output/lluvia
+2025-11-04 23:05:39,154 - __main__ - INFO - Ruta salida: /app/data/output/modelo
+2025-11-04 23:05:39,156 - __main__ - INFO - Ruta modelos: /app/models
+2025-11-04 23:05:39,158 - __main__ - INFO - === Iniciando procesamiento modelo SAT (siguiendo notebook) ===
+2025-11-04 23:05:39,162 - __main__ - INFO - Archivo de lluvia: /app/data/output/lluvia/lluvia_procesada_latest.csv
+2025-11-04 23:05:39,162 - __main__ - INFO - Todos los archivos de entrada están disponibles
+2025-11-04 23:05:39,163 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
+2025-11-04 23:05:39,164 - __main__ - INFO - Cargando archivo IDEAM...
+2025-11-04 23:05:39,178 - __main__ - INFO - Filtrando variables del modelo: ['daily rain', '1-rain ant.rain', '3-rain ant.rain', '15-rain ant.rain', '30-rain ant.rain']
+2025-11-04 23:05:39,183 - __main__ - INFO - Ejecutando modelo de predicción...
+2025-11-04 23:05:39,187 - __main__ - INFO - Modelo encontrado localmente: /app/models/finalized_model_RF_andina_ideam.sav
+2025-11-04 23:05:39,358 - __main__ - INFO - Modelo cargado exitosamente con joblib
+2025-11-04 23:05:39,388 - __main__ - INFO - Modelo ejecutado con StandardScaler y predict_proba
+2025-11-04 23:05:39,391 - __main__ - INFO - Cargando estaciones...
+2025-11-04 23:05:39,651 - __main__ - INFO - Haciendo merge de resultados...
+2025-11-04 23:05:39,666 - __main__ - INFO - Exportando resultados...
+2025-11-04 23:05:40,025 - __main__ - INFO - Archivo GPKG exportado: /app/data/output/modelo/prob_deslizamientos.gpkg (para geotiff_exporter)
+2025-11-04 23:05:40,051 - __main__ - INFO - Archivo CSV exportado: /app/data/output/modelo/prob_deslizamientos.csv (para análisis)
+2025-11-04 23:05:40,052 - __main__ - INFO - Procesadas 321 estaciones - Probabilidad promedio: 0.7159
+2025-11-04 23:05:40,053 - __main__ - INFO - === Procesamiento modelo SAT completado exitosamente ===
+2025-11-04 23:05:40,054 - __main__ - INFO - Procesamiento exitoso

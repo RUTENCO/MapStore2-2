@@ -1,0 +1,30 @@
+{
+  "timestamp_inicio": "2025-11-04T00:38:37.630983",
+  "servicios_ejecutados": [
+    {
+      "servicio": "lluvia-processor",
+      "exitoso": true,
+      "mensaje": "Completado exitosamente",
+      "duracion": 1396.63,
+      "timestamp": "2025-11-04T01:01:54.800637"
+    },
+    {
+      "servicio": "modelo-sat",
+      "exitoso": true,
+      "mensaje": "Completado exitosamente",
+      "duracion": 18.75,
+      "timestamp": "2025-11-04T01:02:13.557496"
+    },
+    {
+      "servicio": "geotiff-exporter",
+      "exitoso": true,
+      "mensaje": "Completado exitosamente",
+      "duracion": 15.56,
+      "timestamp": "2025-11-04T01:02:29.127017"
+    }
+  ],
+  "exitoso": true,
+  "duracion_total": 1431.52,
+  "errores": [],
+  "timestamp_fin": "2025-11-04T01:02:29.149204"
+}

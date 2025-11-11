@@ -8,6 +8,9 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const castArray = require('lodash/castArray');
+
+// Load environment variables from .env file
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const {
     VERSION_INFO_DEFINE_PLUGIN
 } = require('./BuildUtils');
@@ -160,7 +163,9 @@ module.exports = (...args) => mapArgumentsToObject(args, ({
         }),
         new DefinePlugin({
             'process.env': {
-                'NODE_ENV': prod ? '"production"' : '""'
+                'NODE_ENV': prod ? '"production"' : '""',
+                // Frontend environment variables
+                'WEB3FORMS_ACCESS_KEY': JSON.stringify(process.env.WEB3FORMS_ACCESS_KEY)
             }
         }),
         new DefinePlugin({ '__MAPSTORE_PROJECT_CONFIG__': JSON.stringify(projectConfig) }),

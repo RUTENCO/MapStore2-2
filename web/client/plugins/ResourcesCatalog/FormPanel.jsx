@@ -12,7 +12,7 @@ import { withResizeDetector } from 'react-resize-detector';
 // import '../../themes/default/less/resources-catalog/_form-panel.less';
 
 const WEB3FORMS_URL = 'https://api.web3forms.com/submit';
-const WEB3FORMS_ACCESS_KEY = '16cfd63f-389c-4fc7-98e2-945b659960e5'; // Reemplaza por tu clave de Web3Forms
+const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
 
 function HoverButton() {
     const [hover, setHover] = useState(false);
