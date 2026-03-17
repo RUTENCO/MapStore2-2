@@ -94,6 +94,10 @@ export default {
         name: "permalink",
         path: "/permalink/:pid",
         component: require('./pages/Permalink').default
+    }, {
+        name: "statistics",
+        path: "/statistics",
+        component: require('./pages/Statistics').default
     }],
     initialState: {
         defaultState: {

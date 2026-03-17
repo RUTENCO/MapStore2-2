@@ -796,20 +796,20 @@
       },
       "FeedbackMask"
     ],
-    "common": [
+
+    "maps": [
       {
         "name": "BrandNavbar"
       },
       "Login",
       "Language",
       "ScrollTop",
-      "Notifications"
-    ],
-    "maps": [
+      "Notifications",
       { "name": "HomeDescription" },
       { "name": "ResourcesSearch" },
       {
         "name": "ResourcesGrid",
+        "key": "featured-grid",
         "cfg": {
           "id": "featured",
           "titleId": "manager.featuredMaps",
@@ -824,6 +824,7 @@
       },
       {
         "name": "ResourcesGrid",
+        "key": "catalog-grid",
         "cfg": {
           "id": "catalog",
           "titleId": "resources.contents.title",
@@ -936,6 +937,16 @@
       }
     ],
     "permalink": ["Permalink", "FeedbackMask"],
+    "statistics": [
+      { "name": "BrandNavbar" },
+      { "name": "About" },
+      { "name": "Login" },
+      { "name": "Language" },
+      { "name": "ScrollTop" },
+      { "name": "Notifications" },
+      { "name": "Statistics" },
+      { "name": "Footer" }
+    ],
     "dashboard": [
       {
         "name": "LayerDownload",

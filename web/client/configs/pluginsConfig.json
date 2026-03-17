@@ -564,6 +564,15 @@
       }
     },
     {
+      "name": "NavbarBase",
+      "title": "plugins.NavbarBase.title",
+      "description": "plugins.NavbarBase.description",
+      "children": ["ResourceDetails", "Language"],
+      "defaultConfig": {
+        "containerPosition": "header"
+      }
+    },
+    {
       "name": "ResourceDetails",
       "title": "plugins.ResourceDetails.title",
       "description": "plugins.ResourceDetails.description",
@@ -575,6 +584,11 @@
       "name": "Language",
       "title": "plugins.Language.title",
       "description": "plugins.Language.description"
+    },
+    {
+      "name": "Statistics",
+      "title": "plugins.Statistics.title",
+      "description": "Página de portafolio y estadísticas"
     }
   ]
 }
