@@ -31,3 +31,6 @@ __pycache__
 
 # Environment variables with sensitive information
 .env
+
+# Logs del orchestrator
+modelo predictivo/logs/*.log
