@@ -23,3 +23,4 @@ export { default as UserManagerPlugin } from './UserManager';
 export { default as GroupManagerPlugin } from './GroupManager';
 export { default as FormPanelPlugin } from './FormPanel';
 export { default as GlobeGifPlugin } from './GlobeGif';
+export { default as NavbarBasePlugin } from './NavbarBase';

@@ -19,17 +19,17 @@ import tooltip from '../../components/misc/enhancers/tooltip';
 import Spinner from '../../components/layout/Spinner';
 import MenuNavLink from './components/MenuNavLink';
 import src from '../../product/assets/img/icono_inicio.png';
+
 // Importa tu LESS (ajusta ruta si hace falta)
 // import '../../themes/default/less/resources-catalog/_brand-navbar.less';
 import covColombia from '../../product/assets/img/cov_colombia.png';
-
 
 const ButtonWithTooltip = tooltip(Button);
 
 /* --------------------
    Item component para el menu (botón/ícono)
    -------------------- */
-function BrandNavbarMenuItem({ className, loading, glyph, labelId, onClick }) {
+function NavbarBaseMenuItem({ className, loading, glyph, labelId, onClick }) {
     return (
         <li className="ms-brand-navbar-item">
             <ButtonWithTooltip
@@ -46,7 +46,7 @@ function BrandNavbarMenuItem({ className, loading, glyph, labelId, onClick }) {
     );
 }
 
-BrandNavbarMenuItem.propTypes = {
+NavbarBaseMenuItem.propTypes = {
     className: PropTypes.string,
     loading: PropTypes.bool,
     glyph: PropTypes.string,
@@ -54,14 +54,14 @@ BrandNavbarMenuItem.propTypes = {
     onClick: PropTypes.func
 };
 
-BrandNavbarMenuItem.defaultProps = {
+NavbarBaseMenuItem.defaultProps = {
     onClick: () => {}
 };
 
 /* --------------------
    Componente principal
    -------------------- */
-function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo }, context) {
+function NavbarBase({ size, variant, leftMenuItems, rightMenuItems, items, logo }, context) {
     const { loadedPlugins } = context;
     const configuredItems = usePluginItems({ items, loadedPlugins });
 
@@ -176,7 +176,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
                         gap="xs"
                         size={size}
                         variant={variant}
-                        menuItemComponent={BrandNavbarMenuItem}
+                        menuItemComponent={NavbarBaseMenuItem}
                         items={otherLeftMenuItems}
                     />
                 )}
@@ -188,7 +188,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
                         gap="xs"
                         size={size}
                         variant={variant}
-                        menuItemComponent={BrandNavbarMenuItem}
+                        menuItemComponent={NavbarBaseMenuItem}
                         items={dropdownMenuItems}
                         dropdownClassName="ms-brand-dropdown"
                     />
@@ -202,7 +202,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
                         variant={variant}
                         alignRight
                         size={size}
-                        menuItemComponent={BrandNavbarMenuItem}
+                        menuItemComponent={NavbarBaseMenuItem}
                         items={rightItemsSorted}
                     />
                 </div>
@@ -224,7 +224,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
                                     gap="xs"
                                     size={size}
                                     variant={variant}
-                                    menuItemComponent={BrandNavbarMenuItem}
+                                    menuItemComponent={NavbarBaseMenuItem}
                                     items={[item]}
                                 />
                             ))}
@@ -236,7 +236,7 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
     );
 }
 
-BrandNavbar.propTypes = {
+NavbarBase.propTypes = {
     size: PropTypes.string,
     variant: PropTypes.string,
     leftMenuItems: PropTypes.array,
@@ -245,11 +245,11 @@ BrandNavbar.propTypes = {
     logo: PropTypes.object
 };
 
-BrandNavbar.contextTypes = {
+NavbarBase.contextTypes = {
     loadedPlugins: PropTypes.object
 };
 
-BrandNavbar.defaultProps = {
+NavbarBase.defaultProps = {
     logo: {
         src,
         href: '#/'
@@ -257,14 +257,15 @@ BrandNavbar.defaultProps = {
     leftMenuItems: [
         {
             type: 'dropdown',
-            labelId: 'Líneas de Investigación',
+            labelId: 'Inicio',
             glyph: 'globe',
             variant: 'default',
             items: [
-                { type: 'link', labelId: 'Estadisticas', href: '#/statistics' }
+                { type: 'link', labelId: 'Portafolio', href: 'https://sites.google.com/view/sav-cardenas/publications?authuser=1' },
+                { type: 'link', labelId: 'Servicios', href: '/pagina1/sub2' }
             ]
-        }
-        /* {
+        },
+        {
             type: 'dropdown',
             labelId: 'Quienes Somos',
             glyph: 'paperclip',
@@ -293,11 +294,11 @@ BrandNavbar.defaultProps = {
                 { type: 'link', labelId: 'Subpágina 7', href: '/pagina4/sub7' },
                 { type: 'link', labelId: 'Subpágina 8', href: '/pagina4/sub8' }
             ]
-        } */
+        }
     ],
     rightMenuItems: []
 };
 
-export default createPlugin('BrandNavbar', {
-    component: BrandNavbar
+export default createPlugin('NavbarBase', {
+    component: NavbarBase
 });
