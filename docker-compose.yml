@@ -72,6 +72,22 @@ services:
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
       - ./docker/geostore-datasource-ovr-postgres.properties:/usr/local/tomcat/conf/geostore-datasource-ovr.properties:ro
+    env_file:
+      - .env
+    networks:
+      - mapstore-network
+
+  # 5. API de sensores (Node/Express → Neon PostgreSQL)
+  sensors-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: sensors-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
     networks:
       - mapstore-network
 

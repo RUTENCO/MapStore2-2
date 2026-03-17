@@ -171,6 +171,23 @@ services:
       - mapstore
 
 
+  # API REST de sensores → Neon PostgreSQL (cloud)
+  sensors-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: sensors-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+    networks:
+      - mapstore-network
+    profiles:
+      - mapstore
+
+
   proxy:
     image: nginx:latest
     container_name: proxy
@@ -180,6 +197,7 @@ services:
       - "80:80"
     depends_on:
       - mapstore
+      - sensors-api
     networks:
       - mapstore-network
     profiles:

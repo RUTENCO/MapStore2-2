@@ -48,6 +48,10 @@ const devServer = {
         '/docs': {
             target: "http://localhost:8081",
             pathRewrite: {'/docs': '/mapstore/docs'}
+        },
+        '/api': {
+            target: "http://localhost:" + (process.env.SENSORS_API_PORT || 3001),
+            changeOrigin: true
         }
     }
 };
