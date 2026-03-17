@@ -21,6 +21,7 @@ import FlexBox from '../../../components/layout/FlexBox';
  * @prop {string} variant style for the button, one of `undefined`, `default` or `primary`
  * @prop {string} target default link target to be used
  * @prop {any} menuItemComponent a default component to be passed as a prop to a custom `item.Component`
+ * @prop {string} dropdownClassName custom class name for dropdown menus
  */
 const Menu = forwardRef(({
     items,
@@ -30,6 +31,7 @@ const Menu = forwardRef(({
     className,
     menuItemComponent,
     target,
+    dropdownClassName,
     ...props
 }, ref) => {
 
@@ -45,9 +47,8 @@ const Menu = forwardRef(({
             {items
                 .map((item, idx) => {
                     return (
-                        <>
+                        <React.Fragment key={idx}>
                             <MenuItem
-                                key={idx}
                                 variant={item.variant || variant}
                                 item={{ ...item, id: item.id !== undefined ? item.id : idx }}
                                 size={item.size || size}
@@ -56,7 +57,7 @@ const Menu = forwardRef(({
                                 menuItemComponent={menuItemComponent}
                             >
                             </MenuItem>
-                        </>
+                        </React.Fragment>
                     );
                 })}
         </FlexBox>
@@ -69,7 +70,8 @@ Menu.propTypes = {
     alignRight: PropTypes.bool,
     variant: PropTypes.string,
     className: PropTypes.string,
-    menuItemComponent: PropTypes.any
+    menuItemComponent: PropTypes.any,
+    dropdownClassName: PropTypes.string
 };
 
 Menu.defaultProps = {

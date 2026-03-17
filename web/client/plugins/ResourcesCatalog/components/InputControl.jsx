@@ -12,7 +12,7 @@ import withDebounceOnCallback from '../../../components/misc/enhancers/withDebou
 import localizedProps from '../../../components/misc/enhancers/localizedProps';
 const FormControl = localizedProps('placeholder')(FormControlRB);
 
-function InputControl({ onChange, value, ...props }) {
+function InputControl({ onChange, value, debounceTime, ...props }) {
     return <FormControl {...props} value={value} onChange={event => onChange(event.target.value)}/>;
 }
 

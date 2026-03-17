@@ -210,7 +210,7 @@ const ResourcesMenu = forwardRef(({
                 </FlexBox.Fill>
                 <Menu
                     items={menuItems}
-                    containerClass={`ms-menu-list`}
+                    className={`ms-menu-list`}
                     size="md"
                     alignRight
                     target={target}
