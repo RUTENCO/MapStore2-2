@@ -1,7 +1,7 @@
 /**
  * SensorChart.jsx
  * Gráfica de línea para un sensor individual - estilo shadcn/ui
- * Consume datos desde la API REST (Neon PostgreSQL) con fallback a datos locales
+ * Consume datos desde la API REST (Firebase RTDB) con fallback a datos locales
  */
 
 import React, { useState, useEffect } from 'react';
@@ -15,7 +15,7 @@ import {
     CartesianGrid,
     Tooltip
 } from 'recharts';
-import { fetchReadings, SENSORS } from './mockData';
+import { fetchReadings } from './mockData';
 
 // ── Tooltip personalizado (look shadcn) ───────────────────────────────
 function CustomTooltip({ active, payload, label, unit }) {
@@ -67,17 +67,16 @@ function ChartSkeleton() {
 }
 
 // ── Componente principal ──────────────────────────────────────────────
-function SensorChart({ sensorId, period }) {
-    const sensor = SENSORS.find(s => s.id === sensorId);
+function SensorChart({ sensor, period, zone, station }) {
     const [data, setData]       = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
-        fetchReadings(sensorId, period)
+        fetchReadings(sensor.id, period, { zone, station })
             .then(rows => setData(rows))
             .finally(() => setLoading(false));
-    }, [sensorId, period]);
+    }, [sensor.id, period, zone, station]);
 
     const tickInterval = Math.max(1, Math.floor(data.length / 12));
 
@@ -140,8 +139,20 @@ function SensorChart({ sensorId, period }) {
 }
 
 SensorChart.propTypes = {
-    sensorId: PropTypes.string.isRequired,
-    period: PropTypes.string.isRequired
+    sensor: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string,
+        unit: PropTypes.string,
+        color: PropTypes.string
+    }).isRequired,
+    period: PropTypes.string.isRequired,
+    zone: PropTypes.string,
+    station: PropTypes.string
+};
+
+SensorChart.defaultProps = {
+    zone: 'Z1',
+    station: 'E1'
 };
 
 export default SensorChart;

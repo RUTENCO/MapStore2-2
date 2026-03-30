@@ -171,7 +171,7 @@ services:
       - mapstore
 
 
-  # API REST de sensores → Neon PostgreSQL (cloud)
+  # API REST de sensores → Firebase Realtime Database
   sensors-api:
     build:
       context: ./server
@@ -180,6 +180,13 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/serviceAccountKey.json
+      - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
+      - FIREBASE_DEFAULT_ZONE=${FIREBASE_DEFAULT_ZONE:-Z1}
+      - FIREBASE_DEFAULT_STATION=${FIREBASE_DEFAULT_STATION:-E1}
+    volumes:
+      - ./estacion-alertas-tempranas-firebase-adminsdk-fbsvc-0bb37ba309.json:/app/serviceAccountKey.json:ro
     ports:
       - "3001:3001"
     networks:

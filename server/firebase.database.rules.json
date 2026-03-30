@@ -1,0 +1,28 @@
+{
+  "rules": {
+    "zones": {
+      "$zoneId": {
+        "stations": {
+          "$stationId": {
+            "sensors": {
+              "$sensorId": {
+                "readings": {
+                  ".indexOn": [
+                    "timestamp",
+                    "ts",
+                    "time",
+                    "fecha",
+                    "datetime",
+                    "recorded_at",
+                    "createdAt",
+                    "created_at"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

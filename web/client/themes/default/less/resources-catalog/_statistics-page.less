@@ -233,6 +233,43 @@
     }
 }
 
+// ── Filtro de ubicación (zona/estación) ──────────────────────────────
+.sc-location-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+
+    &__group {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__label {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: @sc-muted;
+        white-space: nowrap;
+    }
+
+    &__select {
+        min-width: 120px;
+        padding: 6px 10px;
+        border: 1px solid @sc-border;
+        border-radius: 6px;
+        background: @sc-card-bg;
+        color: @sc-text;
+        font-size: 0.82rem;
+        outline: none;
+
+        &:focus {
+            border-color: @sc-primary;
+            box-shadow: 0 0 0 2px fade(@sc-primary, 15%);
+        }
+    }
+}
+
 // ── Selector de sensores (chips) ──────────────────────────────────────
 .sc-sensor-selector {
     display: flex;

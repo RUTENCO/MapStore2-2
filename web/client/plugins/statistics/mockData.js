@@ -1,9 +1,10 @@
 /**
  * mockData.js
  * Capa de datos para sensores.
- * → En desarrollo: llama a http://localhost:3001/api  (proxy webpack → /api)
- * → En producción: llama a /api  (nginx proxea a sensors-api:3001)
+ * → En desarrollo: llama a http://localhost:3001/api (proxy webpack → /api)
+ * → En producción: llama a /api (nginx proxea a sensors-api:3001)
  *
+ * El backend consulta Firebase Realtime Database.
  * Los datos quemados se mantienen como fallback si la API no está disponible.
  */
 
@@ -13,21 +14,49 @@ import { subDays, subHours, format } from 'date-fns';
 // En dev webpack proxea /api → localhost:3001
 // En prod nginx proxea /api → sensors-api:3001
 const API_BASE = '/api';
+const DEFAULT_ZONE = 'Z1';
+const DEFAULT_STATION = 'E1';
+
+function buildQuery(params = {}) {
+    const cleaned = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
+    if (!cleaned.length) return '';
+    const search = new URLSearchParams(cleaned.map(([k, v]) => [k, String(v)]));
+    return `?${search.toString()}`;
+}
+
+export const ZONES = [
+    { id: 'Z1', name: 'Zona 1' },
+    { id: 'Z2', name: 'Zona 2' },
+    { id: 'Z3', name: 'Zona 3' },
+    { id: 'Z4', name: 'Zona 4' }
+];
+
+export const STATIONS = [
+    { id: 'E1', name: 'Estación 01' },
+    { id: 'E2', name: 'Estación 02' },
+    { id: 'E3', name: 'Estación 03' }
+];
 
 // ── Sensores (fallback local, se sobreescriben con datos reales) ──────
 export const SENSORS = [
-    { id: 'S01', name: 'Temperatura Ambiente', unit: '°C',  color: '#ef4444' },
-    { id: 'S02', name: 'Humedad Relativa',     unit: '%',   color: '#3b82f6' },
-    { id: 'S03', name: 'Presión Atmosférica',  unit: 'hPa', color: '#10b981' },
-    { id: 'S04', name: 'Velocidad del Viento', unit: 'm/s', color: '#f59e0b' }
+    { id: 'T1', name: 'Temperatura Suelo 1', unit: '°C', color: '#ef4444' },
+    { id: 'H1', name: 'Humedad Suelo 1', unit: '%', color: '#3b82f6' },
+    { id: 'T2', name: 'Temperatura Suelo 2', unit: '°C', color: '#f97316' },
+    { id: 'H2', name: 'Humedad Suelo 2', unit: '%', color: '#6366f1' },
+    { id: 'T3', name: 'Temperatura Suelo 3', unit: '°C', color: '#dc2626' },
+    { id: 'H3', name: 'Humedad Suelo 3', unit: '%', color: '#2563eb' },
+    { id: 'T4', name: 'Temperatura Aire', unit: '°C', color: '#f59e0b' },
+    { id: 'H4', name: 'Humedad Aire', unit: '%', color: '#14b8a6' },
+    { id: 'W1', name: 'Velocidad Viento', unit: 'm/s', color: '#8b5cf6' },
+    { id: 'R1', name: 'Lluvia', unit: 'mm', color: '#0ea5e9' }
 ];
 
 // ── Datos quemados de respaldo ────────────────────────────────────────
 function generateReadings(sensorId, days = 30) {
     const now = new Date();
     const readings = [];
-    const baseValues = { S01: 22, S02: 65, S03: 1013, S04: 4 };
-    const amplitude  = { S01: 6,  S02: 15, S03: 8,    S04: 3 };
+    const baseValues = { T1: 22, H1: 60, T2: 23, H2: 58, T3: 22, H3: 62, T4: 26, H4: 68, W1: 4.5, R1: 0.8 };
+    const amplitude  = { T1: 5, H1: 12, T2: 5, H2: 12, T3: 5, H3: 12, T4: 7, H4: 14, W1: 3, R1: 2 };
     const base = baseValues[sensorId] ?? 50;
     const amp  = amplitude[sensorId]  ?? 10;
     const totalPoints = days * 4;
@@ -49,10 +78,35 @@ export const FALLBACK_DATA = SENSORS.reduce((acc, s) => {
     return acc;
 }, {});
 
-// ── API: obtener lista de sensores ────────────────────────────────────
-export async function fetchSensors() {
+// ── API: obtener zonas ───────────────────────────────────────────────
+export async function fetchZones() {
     try {
-        const res = await fetch(`${API_BASE}/sensors`);
+        const res = await fetch(`${API_BASE}/zones`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch {
+        return ZONES;
+    }
+}
+
+// ── API: obtener estaciones por zona ─────────────────────────────────
+export async function fetchStations(zone = DEFAULT_ZONE) {
+    try {
+        const res = await fetch(`${API_BASE}/zones/${zone}/stations`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch {
+        return STATIONS;
+    }
+}
+
+// ── API: obtener lista de sensores ────────────────────────────────────
+export async function fetchSensors(options = {}) {
+    const zone = options.zone || DEFAULT_ZONE;
+    const station = options.station || DEFAULT_STATION;
+    try {
+        const query = buildQuery({ zone, station });
+        const res = await fetch(`${API_BASE}/sensors${query}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch {
@@ -61,12 +115,15 @@ export async function fetchSensors() {
 }
 
 // ── API: obtener lecturas de un sensor filtradas por período ──────────
-export async function fetchReadings(sensorId, period = '7d') {
+export async function fetchReadings(sensorId, period = '7d', options = {}) {
+    const zone = options.zone || DEFAULT_ZONE;
+    const station = options.station || DEFAULT_STATION;
     try {
-        const res = await fetch(`${API_BASE}/sensors/${sensorId}/readings?period=${period}`);
+        const query = buildQuery({ period, zone, station });
+        const res = await fetch(`${API_BASE}/sensors/${sensorId}/readings${query}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-        // Normalizar: la API devuelve value como string desde pg
+        // Normalizar: asegurar tipo numérico para Recharts
         return rows.map(r => ({
             ...r,
             value: parseFloat(r.value)
@@ -78,16 +135,20 @@ export async function fetchReadings(sensorId, period = '7d') {
         const cutoff = {
             '24h': subHours(now, 24),
             '7d': subDays(now, 7),
-            '30d': subDays(now, 30)
+            '30d': subDays(now, 30),
+            '90d': subDays(now, 90)
         }[period] ?? subDays(now, 7);
         return all.filter(r => new Date(r.timestamp) >= cutoff);
     }
 }
 
 // ── API: estadísticas de un sensor ───────────────────────────────────
-export async function fetchStats(sensorId, period = '7d') {
+export async function fetchStats(sensorId, period = '7d', options = {}) {
+    const zone = options.zone || DEFAULT_ZONE;
+    const station = options.station || DEFAULT_STATION;
     try {
-        const res = await fetch(`${API_BASE}/sensors/${sensorId}/stats?period=${period}`);
+        const query = buildQuery({ period, zone, station });
+        const res = await fetch(`${API_BASE}/sensors/${sensorId}/stats${query}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const s = await res.json();
         return {

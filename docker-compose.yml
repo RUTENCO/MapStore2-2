@@ -72,12 +72,10 @@ services:
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
       - ./docker/geostore-datasource-ovr-postgres.properties:/usr/local/tomcat/conf/geostore-datasource-ovr.properties:ro
-    env_file:
-      - .env
     networks:
       - mapstore-network
 
-  # 5. API de sensores (Node/Express → Neon PostgreSQL)
+  # 5. API de sensores (Node/Express → Firebase Realtime Database)
   sensors-api:
     build:
       context: ./server
@@ -86,6 +84,13 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/serviceAccountKey.json
+      - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
+      - FIREBASE_DEFAULT_ZONE=${FIREBASE_DEFAULT_ZONE:-Z1}
+      - FIREBASE_DEFAULT_STATION=${FIREBASE_DEFAULT_STATION:-E1}
+    volumes:
+      - ./estacion-alertas-tempranas-firebase-adminsdk-fbsvc-0bb37ba309.json:/app/serviceAccountKey.json:ro
     ports:
       - "3001:3001"
     networks:
@@ -101,5 +106,6 @@ services:
       - "80:80"
     depends_on:
       - mapstore
+      - sensors-api
     networks:
       - mapstore-network
