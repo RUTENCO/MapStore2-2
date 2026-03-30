@@ -14,8 +14,39 @@ import { subDays, subHours, format } from 'date-fns';
 // En dev webpack proxea /api → localhost:3001
 // En prod nginx proxea /api → sensors-api:3001
 const API_BASE = '/api';
+const LOCAL_API_PORT = '3001';
 const DEFAULT_ZONE = 'Z1';
 const DEFAULT_STATION = 'E1';
+
+function isLocalHost() {
+    if (typeof window === 'undefined') return false;
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+}
+
+function getApiBaseCandidates() {
+    const candidates = [API_BASE];
+    if (isLocalHost()) {
+        candidates.push(`${window.location.protocol}//${window.location.hostname}:${LOCAL_API_PORT}/api`);
+    }
+    return [...new Set(candidates)];
+}
+
+async function fetchJSONWithApiFallback(path) {
+    let lastError;
+    const bases = getApiBaseCandidates();
+
+    for (const base of bases) {
+        try {
+            const res = await fetch(`${base}${path}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch (error) {
+            lastError = error;
+        }
+    }
+
+    throw lastError || new Error('No se pudo consultar la API de sensores');
+}
 
 function buildQuery(params = {}) {
     const cleaned = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
@@ -81,9 +112,7 @@ export const FALLBACK_DATA = SENSORS.reduce((acc, s) => {
 // ── API: obtener zonas ───────────────────────────────────────────────
 export async function fetchZones() {
     try {
-        const res = await fetch(`${API_BASE}/zones`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        return await fetchJSONWithApiFallback('/zones');
     } catch {
         return ZONES;
     }
@@ -92,9 +121,7 @@ export async function fetchZones() {
 // ── API: obtener estaciones por zona ─────────────────────────────────
 export async function fetchStations(zone = DEFAULT_ZONE) {
     try {
-        const res = await fetch(`${API_BASE}/zones/${zone}/stations`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        return await fetchJSONWithApiFallback(`/zones/${zone}/stations`);
     } catch {
         return STATIONS;
     }
@@ -106,9 +133,7 @@ export async function fetchSensors(options = {}) {
     const station = options.station || DEFAULT_STATION;
     try {
         const query = buildQuery({ zone, station });
-        const res = await fetch(`${API_BASE}/sensors${query}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        return await fetchJSONWithApiFallback(`/sensors${query}`);
     } catch {
         return SENSORS;
     }
@@ -120,9 +145,7 @@ export async function fetchReadings(sensorId, period = '7d', options = {}) {
     const station = options.station || DEFAULT_STATION;
     try {
         const query = buildQuery({ period, zone, station });
-        const res = await fetch(`${API_BASE}/sensors/${sensorId}/readings${query}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
+        const rows = await fetchJSONWithApiFallback(`/sensors/${sensorId}/readings${query}`);
         // Normalizar: asegurar tipo numérico para Recharts
         return rows.map(r => ({
             ...r,
@@ -148,9 +171,7 @@ export async function fetchStats(sensorId, period = '7d', options = {}) {
     const station = options.station || DEFAULT_STATION;
     try {
         const query = buildQuery({ period, zone, station });
-        const res = await fetch(`${API_BASE}/sensors/${sensorId}/stats${query}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const s = await res.json();
+        const s = await fetchJSONWithApiFallback(`/sensors/${sensorId}/stats${query}`);
         return {
             min: parseFloat(s.min).toFixed(2),
             avg: parseFloat(s.avg).toFixed(2),
