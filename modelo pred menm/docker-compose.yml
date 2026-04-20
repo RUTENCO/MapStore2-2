@@ -1,0 +1,14 @@
+services:
+  modelo-pred-menm:
+    build:
+      context: ./modelo
+      dockerfile: Dockerfile
+    container_name: modelo_pred_menm
+    environment:
+      MODEL_DATA_ROOT: /data/datalake
+      CRON_SCHEDULE: "0 0 1 * *"
+      RUN_ON_START: "false"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./static/datalake:/data/datalake:rw
+    restart: unless-stopped
