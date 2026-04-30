@@ -1,0 +1,34 @@
+{
+    "data_root": "/data/datalake",
+
+    "logs_dir": "logs/",
+    "create_database_log": "general.log",
+
+    "credentials_firebase": "cred/geohazards-unal-firebase-adminsdk-i93jf-e7ca5cdae2.json",
+
+    "stagging_dir": "raw/stagging/",
+    "ingested_dir": "raw/ingested/",
+
+    "img_results_dir": "img_results/",
+
+    "files_df_dir": "files_df/",
+
+    "geodata_raster_dir": "Geodata/raster/",
+    "geodata_raster_aoi_dir": "Geodata/raster_aoi/",
+    "geodata_raster_results_dir": "Geodata/raster_results/",
+    "geodata_geojson_dir": "Geodata/geojson/",
+    "shp_geojson_dir": "Geodata/shp/",
+
+    "geojson_events_name": "events.geojson",
+    "shp_events_name": "events.shp",
+    "shp_boundary_name": "Antioquia_25K_DAGRAN.tif",
+
+    "raster_empty_name": "empty_raster.tif",
+    "raster_events_name": "events.tif",
+    "raster_buffer_events_name": "buffer_events.tif",
+    "raster_dem_name": "dem.tif",
+    "raster_result_name": "susceptibility",
+
+    "models_dir": "models/",
+    "mass_mov_model": "mass_mov_model.pkl"
+}
