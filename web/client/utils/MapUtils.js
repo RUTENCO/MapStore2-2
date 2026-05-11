@@ -694,13 +694,41 @@ export const generateNewUUIDs = (mapConfig = {}) => {
 export const mergeMapConfigs = (cfg1 = {}, cfg2 = {}) => {
     // removes empty props from layer as it can cause bugs
     const fixLayers = (layers = []) => layers.map(layer => pick(layer, keys(layer).filter(key => layer[key] !== undefined)));
+    const normalizeServiceUrl = (value) => {
+        if (typeof value !== 'string') {
+            return value;
+        }
+        if (!/^https?:\/\/(localhost|127\.0\.0\.1)/.test(value)) {
+            return value;
+        }
+        const normalized = value
+            .replace(/\?.*$/, '')
+            .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\//, 'http://geoserver:8080/')
+            .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8080\/geoserver\//, 'http://geoserver:8080/geoserver/')
+            .replace(/^https?:\/\/(localhost|127\.0\.0\.1)\/geoserver\//, 'http://geoserver:8080/geoserver/');
+        try {
+            if (typeof console !== 'undefined' && console.info) {
+                console.info('[mergeMapConfigs] normalizeServiceUrl:', { from: value, to: normalized });
+            }
+        } catch (e) {
+            // ignore logging errors
+        }
+        return normalized;
+    };
+    const normalizeLayerUrls = (layer = {}) => ({
+        ...layer,
+        url: Array.isArray(layer.url) ? layer.url.map(normalizeServiceUrl) : normalizeServiceUrl(layer.url),
+        baseURL: normalizeServiceUrl(layer.baseURL),
+        capabilitiesURL: normalizeServiceUrl(layer.capabilitiesURL),
+        tileMapService: normalizeServiceUrl(layer.tileMapService)
+    });
 
     const cfg2Fixed = generateNewUUIDs(cfg2);
 
     const backgrounds = [...get(cfg1, 'map.backgrounds', []), ...get(cfg2Fixed, 'map.backgrounds', [])];
 
-    const layers1 = fixLayers(get(cfg1, 'map.layers', []));
-    const layers2 = fixLayers(get(cfg2Fixed, 'map.layers', []));
+    const layers1 = fixLayers(get(cfg1, 'map.layers', [])).map(normalizeLayerUrls);
+    const layers2 = fixLayers(get(cfg2Fixed, 'map.layers', [])).map(normalizeLayerUrls);
 
     const annotationsLayer1 = find(layers1, layer => layer.id === 'annotations');
     const annotationsLayer2 = find(layers2, layer => layer.id === 'annotations');
@@ -716,6 +744,13 @@ export const mergeMapConfigs = (cfg1 = {}, cfg2 = {}) => {
             ]
         }] : [])
     ];
+    try {
+        if (typeof console !== 'undefined' && console.info) {
+            console.info('[mergeMapConfigs] layers after normalization (sample urls):', layers.map(l => l && l.url).slice(0, 10));
+        }
+    } catch (e) {
+        // ignore
+    }
     const toleratedFields = ['id', 'visibility'];
     const backgroundLayers = layers.filter(layer => layer.group === 'background')
         // remove duplication by comparing all fields with some level of tolerance
@@ -735,8 +770,14 @@ export const mergeMapConfigs = (cfg1 = {}, cfg2 = {}) => {
         catalogServices: {
             ...get(cfg1, 'catalogServices', {}),
             services: {
-                ...get(cfg1, 'catalogServices.services', {}),
-                ...get(cfg2Fixed, 'catalogServices.services', {})
+                ...Object.keys(get(cfg1, 'catalogServices.services', {})).reduce((result, key) => ({
+                    ...result,
+                    [key]: normalizeLayerUrls(get(cfg1, `catalogServices.services.${key}`, {}))
+                }), {}),
+                ...Object.keys(get(cfg2Fixed, 'catalogServices.services', {})).reduce((result, key) => ({
+                    ...result,
+                    [key]: normalizeLayerUrls(get(cfg2Fixed, `catalogServices.services.${key}`, {}))
+                }), {})
             }
         },
         map: {

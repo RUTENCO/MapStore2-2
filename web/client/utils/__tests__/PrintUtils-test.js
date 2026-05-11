@@ -13,6 +13,7 @@ import {
     getMapfishLayersSpecification,
     getOlDefaultStyle,
     toAbsoluteURL,
+    normalizeUrl,
     getMapSize,
     getNearestZoom,
     getMapfishPrintSpecification,
@@ -647,6 +648,31 @@ describe('PrintUtils', () => {
             done();
         }).catch(done);
 
+    });
+    it('wms print format falls back to png for tiff layers', () => {
+        const printLayer = {
+            url: 'http://mygeoserver/wms',
+            name: 'my:layer',
+            type: 'wms',
+            format: 'image/tiff'
+        };
+        const result = specCreators.wms.map(printLayer, { projection: 'EPSG:3857' });
+        expect(result.format).toBe('image/png');
+    });
+    it('normalizeUrl rewrites local geoserver endpoints for print backend access', () => {
+        expect(normalizeUrl('http://localhost:8081/geoserver/ows?SERVICE=WMS')).toBe('http://geoserver:8080/geoserver/ows');
+        expect(normalizeUrl('http://127.0.0.1:8081/geoserver/wms?SERVICE=WMS')).toBe('http://geoserver:8080/geoserver/wms');
+    });
+    it('wms print spec rewrites local geoserver baseURL for print backend access', () => {
+        const printLayer = {
+            url: 'http://localhost:8081/geoserver/ows?SERVICE=WMS',
+            name: 'my:layer',
+            type: 'wms',
+            format: 'image/png'
+        };
+        const result = specCreators.wms.map(printLayer, { projection: 'EPSG:3857' });
+        expect(result.baseURL).toBe('http://geoserver:8080/geoserver/ows?');
+        expect(JSON.stringify(result.customParams)).toNotContain('localhost');
     });
     it('getMapfishPrintSpecification with fixed scales', (done) => {
         getMapfishPrintSpecification({

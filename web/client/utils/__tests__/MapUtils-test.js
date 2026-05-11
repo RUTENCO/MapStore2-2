@@ -7,7 +7,7 @@
  */
 import expect from 'expect';
 
-import { keys, sortBy } from 'lodash';
+import { keys, sortBy, find } from 'lodash';
 
 import {
     RESOLUTIONS_HOOK,
@@ -2098,7 +2098,7 @@ describe('Test the MapUtils', () => {
                     "Demo WMS Service": {
                         title: "Demo WMS Service",
                         type: "wms",
-                        url: "url"
+                        url: "http://localhost:8081/geoserver/ows?SERVICE=WMS"
                     }
                 }
             },
@@ -2128,7 +2128,8 @@ describe('Test the MapUtils', () => {
                     group: "group2"
                 }, {
                     id: "layer3",
-                    group: undefined
+                    group: undefined,
+                    url: "http://localhost:8081/geoserver/ows?SERVICE=WMS"
                 }, testBackground],
                 projection: "EPSG:900913",
                 units: "m"
@@ -2204,7 +2205,10 @@ describe('Test the MapUtils', () => {
         const servicesKeys = keys(cfg.catalogServices.services).sort();
         expect(servicesKeys).toEqual(["Demo CSW Service", "Demo WMS Service"]);
         expect(cfg.catalogServices.services["Demo CSW Service"]).toEqual(cfg1.catalogServices.services["Demo CSW Service"]);
-        expect(cfg.catalogServices.services["Demo WMS Service"]).toEqual(cfg2.catalogServices.services["Demo WMS Service"]);
+        expect(cfg.catalogServices.services["Demo WMS Service"].url).toBe("http://geoserver:8080/geoserver/ows");
+
+        const normalizedLayer = find(cfg.map.layers, layer => layer.url === "http://geoserver:8080/geoserver/ows");
+        expect(normalizedLayer).toExist();
 
         expect(cfg.map).toExist();
         expect(cfg.map.backgrounds.length).toBe(1);

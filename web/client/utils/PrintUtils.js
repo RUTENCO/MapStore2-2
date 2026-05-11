@@ -8,7 +8,7 @@
 
 import { reproject, getUnits, reprojectGeoJson, normalizeSRS } from './CoordinatesUtils';
 
-import {addAuthenticationParameter} from './SecurityUtils';
+import { addAuthenticationParameter } from './SecurityUtils';
 import { calculateExtent, getGoogleMercatorScales, getResolutionsForProjection, getScales } from './MapUtils';
 import { optionsToVendorParams } from './VendorParamsUtils';
 import { colorToHexStr } from './ColorUtils';
@@ -99,7 +99,7 @@ export function renderVectorLegendToBase64(layer) {
                     style={layer.style}
                     layer={layer}
                     interactive={false}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
             </div>,
             container,
@@ -138,7 +138,7 @@ export function renderVectorLegendToBase64(layer) {
 }
 
 // Try to guess geomType, getting the first type available.
-export const getGeomType = function(layer) {
+export const getGeomType = function (layer) {
     return layer.features && layer.features[0] && layer.features[0].geometry ? layer.features[0].geometry.type :
         layer.features && layer.features[0].features && layer.features[0].style && layer.features[0].style.type ? layer.features[0].style.type : undefined;
 };
@@ -163,7 +163,7 @@ export const getOpacity = layer => layer.opacity || (layer.opacity === 0 ? 0 : 1
  */
 export const preloadData = (spec) => {
     // check if remote data
-    const wfsLayers = filter(spec.layers, {type: "wfs"});
+    const wfsLayers = filter(spec.layers, { type: "wfs" });
     if (wfsLayers.length > 0) {
         // get data from WFS
         return Promise.all(
@@ -173,17 +173,17 @@ export const preloadData = (spec) => {
                     srsName: spec.projection,
                     ...(optionsToVendorParams(l) || {})
                 })
-                    .then(({data}) => ({
+                    .then(({ data }) => ({
                         id: l.id,
                         geoJson: data
                     }))
             )
-        // set geoJson in layer's spec
+            // set geoJson in layer's spec
         ).then(replies => {
             return {
                 ...spec,
                 layers: (spec.layers || []).map(l => {
-                    const layerData = find(replies, {id: l.id});
+                    const layerData = find(replies, { id: l.id });
                     if (l.type === "wfs" && layerData) {
                         return {
                             ...l,
@@ -237,7 +237,11 @@ export const normalizeUrl = (input) => {
     if (result.indexOf('?') !== -1) {
         result = result.substring(0, result.indexOf('?'));
     }
-    return PrintUtils.toAbsoluteURL(result);
+    const absoluteUrl = PrintUtils.toAbsoluteURL(result);
+    return absoluteUrl
+        .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\//, 'http://geoserver:8080/')
+        .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8080\/geoserver/, 'http://geoserver:8080/geoserver')
+        .replace(/^https?:\/\/(localhost|127\.0\.0\.1)\/geoserver/, 'http://geoserver:8080/geoserver');
 };
 /**
  * Find the layout name for the given options.
@@ -404,8 +408,8 @@ export function getScalesByResolutions(resolutions, ratio, projection = "EPSG:38
  * @memberof utils.PrintUtils
  */
 export const getMapfishPrintSpecification = (rawSpec, state) => {
-    const {params, mergeableParams, excludeLayersFromLegend, ...baseSpec} = rawSpec;
-    const spec = {...baseSpec, ...params};
+    const { params, mergeableParams, excludeLayersFromLegend, ...baseSpec } = rawSpec;
+    const spec = { ...baseSpec, ...params };
     const printMap = state?.print?.map;
     const projectedCenter = reproject(spec.center, 'EPSG:4326', spec.projection);
     // * use [spec.zoom] the actual zoom in case useFixedScales = false else use [spec.scaleZoom] the fixed zoom scale not actual
@@ -430,6 +434,13 @@ export const getMapfishPrintSpecification = (rawSpec, state) => {
     return legendLayersPromise.then((legendLayers) => {
         const layersPromise = PrintUtils.getMapfishLayersSpecification(spec.layers, projectedSpec, state, 'map');
         return layersPromise.then((layers) => {
+            try {
+                if (typeof console !== 'undefined' && console.info) {
+                    console.info('[getMapfishPrintSpecification] final layers (sample urls):', layers.map(l => l && l.url).slice(0, 10));
+                }
+            } catch (e) {
+                // ignore logging errors
+            }
             return {
                 "units": getUnits(spec.projection),
                 "srs": normalizeSRS(spec.projection || 'EPSG:3857'),
@@ -452,7 +463,7 @@ export const getMapfishPrintSpecification = (rawSpec, state) => {
                 ],
                 "legends": legendLayers,
                 "credits": getLayersCredits(spec.layers),
-                ...(mergeableParams ? {mergeableParams} : {}),
+                ...(mergeableParams ? { mergeableParams } : {}),
                 ...params
             };
         });
@@ -474,9 +485,9 @@ export const wfsPreloaderFilter = (state, spec) => preloadData(spec);
 export const toMapfish = (state, spec) => Promise.resolve(getMapfishPrintSpecification(spec, state));
 
 const defaultPrintingServiceTransformerChain = [
-    {name: "localization", transformer: localizationFilter},
-    {name: "wfspreloader", transformer: wfsPreloaderFilter},
-    {name: "mapfishSpecCreator", transformer: toMapfish}
+    { name: "localization", transformer: localizationFilter },
+    { name: "wfspreloader", transformer: wfsPreloaderFilter },
+    { name: "mapfishSpecCreator", transformer: toMapfish }
 ];
 
 let userTransformerChain = [];
@@ -495,8 +506,8 @@ function addOrReplaceTransformers(chain, transformers) {
 export function getSpecTransformerChain() {
     const userOffset = defaultPrintingServiceTransformerChain.length;
     return sortBy(addOrReplaceTransformers(
-        defaultPrintingServiceTransformerChain.map((t, index) => ({...t, position: index})),
-        userTransformerChain.map((t, index) => ({...t, position: t.position ?? index + userOffset}))
+        defaultPrintingServiceTransformerChain.map((t, index) => ({ ...t, position: index })),
+        userTransformerChain.map((t, index) => ({ ...t, position: t.position ?? index + userOffset }))
     ), ["position"]);
 }
 
@@ -541,7 +552,7 @@ export function resetDefaultPrintingService() {
  * Otherwise, the let userTransformerChain are copy to your extension and not override the reference in the print module of MapStore2 framework
  */
 export function addTransformer(name, transformer, position) {
-    userTransformerChain = addOrReplaceTransformers(userTransformerChain, [{name, transformer, position}]);
+    userTransformerChain = addOrReplaceTransformers(userTransformerChain, [{ name, transformer, position }]);
 }
 
 /**
@@ -560,7 +571,7 @@ export function addTransformer(name, transformer, position) {
  * addMapTransformer("mymaptransform", (state, map) => ({...map, zoom: map.zoom + 1}))
  */
 export function addMapTransformer(name, transformer) {
-    mapTransformerChain = addOrReplaceTransformers(mapTransformerChain, [{name, transformer}]);
+    mapTransformerChain = addOrReplaceTransformers(mapTransformerChain, [{ name, transformer }]);
 }
 
 function addOrReplaceValidators(chain, list) {
@@ -583,7 +594,7 @@ function addOrReplaceValidators(chain, list) {
  * addValidator("myplugin", "map-preview", (state, current) => state.print.myprop ? {valid: true} : {valid: false, errors: ["myprop missing"]})
  */
 export function addValidator(id, name, validator) {
-    validatorsChain = addOrReplaceValidators(validatorsChain, [{id, name, validator}]);
+    validatorsChain = addOrReplaceValidators(validatorsChain, [{ id, name, validator }]);
 }
 
 /**
@@ -642,13 +653,13 @@ export const getDefaultPrintingService = () => {
                 ...extra
             } : printSpec;
             return getSpecTransformerChain().map(t => t.transformer).reduce((previous, f) => {
-                return previous.then(spec=> f(state, spec));
+                return previous.then(spec => f(state, spec));
             }, Promise.resolve(intialSpec));
         },
         validate: () => {
             const state = getStore().getState();
             return getValidatorsChain().reduce((acc, current) => {
-                const previousValidation = acc[current.name] ?? {valid: true, errors: []};
+                const previousValidation = acc[current.name] ?? { valid: true, errors: [] };
                 const validation = current.validator(state, previousValidation);
                 return {
                     ...acc,
@@ -722,7 +733,7 @@ export const specCreators = {
             "layers": [
                 layer.name
             ],
-            "format": layer.format || "image/png",
+            "format": !layer.format || /tiff|geotiff/i.test(layer.format) ? "image/png" : layer.format,
             "styles": [
                 layer.style || ''
             ],
@@ -738,7 +749,8 @@ export const specCreators = {
                     filterObj: layer.filterObj
                 })
             }
-            ))}),
+            ))
+        }),
         legend: (layer, spec) => {
             const legendOptions = "forceLabels:" + (spec.forceLabels ? "on" : "") + ";fontAntialiasing:" + spec.antiAliasing + ";dpi:" + spec.legendDpi + ";fontStyle:" + (spec.bold && "bold" || (spec.italic && "italic") || '') + ";fontName:" + spec.fontFamily + ";fontSize:" + spec.fontSize;
             return {
@@ -749,13 +761,13 @@ export const specCreators = {
                         "icons": [
                             PrintUtils.normalizeUrl(layer.url) + url.format({
                                 query: addAuthenticationParameter(PrintUtils.normalizeUrl(layer.url), {
-                                    ...getWMSLegendConfig({layer, legendOptions, mapBbox: spec.bbox, mapSize: spec.size, projection: spec.projection, format: LEGEND_FORMAT.IMAGE}),
+                                    ...getWMSLegendConfig({ layer, legendOptions, mapBbox: spec.bbox, mapSize: spec.size, projection: spec.projection, format: LEGEND_FORMAT.IMAGE }),
                                     TRANSPARENT: true,
                                     EXCEPTIONS: "application/vnd.ogc.se_xml",
                                     VERSION: "1.1.1",
                                     SCALE: spec.scale,
                                     ...getLegendIconsSize(spec, layer),
-                                    ...(spec.language ? {LANGUAGE: spec.language} : {})
+                                    ...(spec.language ? { LANGUAGE: spec.language } : {})
                                 })
                             })
                         ]
@@ -781,10 +793,10 @@ export const specCreators = {
                 type: "FeatureCollection",
                 features: layer?.style?.format === 'geostyler' && layer?.style?.body
                     ? printStyleParser.writeStyle(layer.style.body, true)({ layer, spec })
-                    : layer.features.map( f => ({...f, properties: {...f.properties, ms_style: f && f.geometry && f.geometry.type && f.geometry.type.replace("Multi", "") || 1}}))
+                    : layer.features.map(f => ({ ...f, properties: { ...f.properties, ms_style: f && f.geometry && f.geometry.type && f.geometry.type.replace("Multi", "") || 1 } }))
             },
-            "EPSG:4326",
-            spec.projection)
+                "EPSG:4326",
+                spec.projection)
         }
         ),
         legend: (layer) => {
@@ -943,8 +955,8 @@ export const specCreators = {
     },
     wmts: {
         map: (layer, spec) => {
-            const SRS =  spec.projection;
-            const { tileMatrixSet, tileMatrixSetName} = getTileMatrix(layer, SRS); // TODO: use spec SRS.
+            const SRS = spec.projection;
+            const { tileMatrixSet, tileMatrixSetName } = getTileMatrix(layer, SRS); // TODO: use spec SRS.
             if (!tileMatrixSet) {
                 throw Error("tile matrix not found for pdf EPSG" + SRS);
             }
@@ -1032,7 +1044,7 @@ export const specCreators = {
                         2.388657133579254,
                         1.194328566789627,
                         0.5971642833948135
-                    ].filter( (_, i) => {
+                    ].filter((_, i) => {
                         let isIncluded = true;
                         if (layerConfig.maxNativeZoom) {
                             isIncluded = isIncluded && i <= layerConfig.maxNativeZoom;
@@ -1064,7 +1076,7 @@ export const specCreators = {
                     20037508.3392,
                     20037508.3392
                 ],
-                resolutions: layer.tileSets.map(({resolution}) => resolution)
+                resolutions: layer.tileSets.map(({ resolution }) => resolution)
                 // letters: ... to implement
 
             };
@@ -1088,7 +1100,7 @@ export const specCreators = {
                     ...url.parse(`${trimEnd(layer.url, '/')}/${isImageServerUrl(layer.url) ? 'exportImage' : 'export'}`),
                     query: {
                         F: 'image',
-                        ...(layer.name !== undefined  && { LAYERS: `show:${layer.name}` }),
+                        ...(layer.name !== undefined && { LAYERS: `show:${layer.name}` }),
                         FORMAT: layer.format || 'PNG32',
                         TRANSPARENT: true,
                         SIZE: `${layout?.map?.width},${layout?.map?.height}`,
@@ -1119,7 +1131,7 @@ export const getWMTSMatrixIds = (layer, tileMatrixSet) => {
         const topLeftCorner = tileMatrix.TopLeftCorner && tileMatrix.TopLeftCorner.split(" ").map(v => toNumber(v));
         const matrixSize = [toNumber(tileMatrix.MatrixWidth), toNumber(tileMatrix.MatrixHeight)];
 
-        return modifiedTileMatrixSet.push({ identifier, matrixSize, resolution, tileSize, topLeftCorner});
+        return modifiedTileMatrixSet.push({ identifier, matrixSize, resolution, tileSize, topLeftCorner });
     });
     return modifiedTileMatrixSet;
 };
@@ -1140,49 +1152,49 @@ function getLabelAlign(horizontal, vertical) {
  * @param {*} styleType
  * @memberof utils.PrintUtils
  */
-export const toOpenLayers2TextStyle = function(layer, style, styleType) {
+export const toOpenLayers2TextStyle = function (layer, style, styleType) {
     if (!style) {
         return PrintUtils.getOlDefaultStyle(layer, styleType);
     }
     switch (styleType) {
-    case 'GraticuleXLabels': {
-        return {
-            "fontColor": style.color || "#000000",
-            "fontFamily": style.font || "12px Calibri,sans-serif",
-            "fontWeight": style.fontWeight || "bold",
-            "fontSize": style.fontSize || "14",
-            "label": "{properties.valueText}",
-            "labelAlign": getLabelAlign(style.textAlign || "center", style.verticalAlign || "bottom"),
-            "labelOutlineColor": style.labelOutlineColor || "#FFFFFF",
-            "labelOutlineWidth": style.labelOutlineWidth / 4.0 || 0.5,
-            "rotation": style.rotation ? -style.rotation : 0
-        };
-    }
-    case 'GraticuleYLabels': {
-        return {
-            "fontColor": style.color || "#000000",
-            "fontFamily": style.font || "12px Calibri,sans-serif",
-            "fontWeight": style.fontWeight || "bold",
-            "fontSize": style.fontSize || "14",
-            "label": "{properties.valueText}",
-            "labelAlign": getLabelAlign(style.textAlign || "end", style.verticalAlign || "middle"),
-            "labelOutlineColor": style.labelOutlineColor || "#FFFFFF",
-            "labelOutlineWidth": style.labelOutlineWidth / 4.0 || 0.5,
-            "rotation": style.rotation ? -style.rotation : 0
-        };
-    }
-    default: {
-        return {
-            "fontColor": "#000000",
-            "fontFamily": "12px Calibri,sans-serif",
-            "fontWeight": "bold",
-            "fontSize": "14",
-            "label": "{properties.valueText}",
-            "labelAlign": "cb",
-            "labelOutlineColor": "#FFFFFF",
-            "labelOutlineWidth": 0.5
-        };
-    }
+        case 'GraticuleXLabels': {
+            return {
+                "fontColor": style.color || "#000000",
+                "fontFamily": style.font || "12px Calibri,sans-serif",
+                "fontWeight": style.fontWeight || "bold",
+                "fontSize": style.fontSize || "14",
+                "label": "{properties.valueText}",
+                "labelAlign": getLabelAlign(style.textAlign || "center", style.verticalAlign || "bottom"),
+                "labelOutlineColor": style.labelOutlineColor || "#FFFFFF",
+                "labelOutlineWidth": style.labelOutlineWidth / 4.0 || 0.5,
+                "rotation": style.rotation ? -style.rotation : 0
+            };
+        }
+        case 'GraticuleYLabels': {
+            return {
+                "fontColor": style.color || "#000000",
+                "fontFamily": style.font || "12px Calibri,sans-serif",
+                "fontWeight": style.fontWeight || "bold",
+                "fontSize": style.fontSize || "14",
+                "label": "{properties.valueText}",
+                "labelAlign": getLabelAlign(style.textAlign || "end", style.verticalAlign || "middle"),
+                "labelOutlineColor": style.labelOutlineColor || "#FFFFFF",
+                "labelOutlineWidth": style.labelOutlineWidth / 4.0 || 0.5,
+                "rotation": style.rotation ? -style.rotation : 0
+            };
+        }
+        default: {
+            return {
+                "fontColor": "#000000",
+                "fontFamily": "12px Calibri,sans-serif",
+                "fontWeight": "bold",
+                "fontSize": "14",
+                "label": "{properties.valueText}",
+                "labelAlign": "cb",
+                "labelOutlineColor": "#FFFFFF",
+                "labelOutlineWidth": 0.5
+            };
+        }
     }
 };
 
@@ -1191,7 +1203,7 @@ export const toOpenLayers2TextStyle = function(layer, style, styleType) {
  * http://dev.openlayers.org/docs/files/OpenLayers/Feature/Vector-js.html#OpenLayers.Feature.Vector.OpenLayers.Feature.Vector.style
  * @memberof utils.PrintUtils
  */
-export const toOpenLayers2Style = function(layer, style, styleType) {
+export const toOpenLayers2Style = function (layer, style, styleType) {
     if (!style || layer.styleName === "marker") {
         return PrintUtils.getOlDefaultStyle(layer, styleType);
     }
@@ -1233,93 +1245,93 @@ export const toOpenLayers2Style = function(layer, style, styleType) {
  */
 export const getOlDefaultStyle = (layer, styleType) => {
     switch (styleType || getGeomType(layer) || "") {
-    case 'Polygon':
-    case 'MultiPolygon': {
-        return {
-            "fillColor": "#0000FF",
-            "fillOpacity": 0.1,
-            "strokeColor": "#0000FF",
-            "strokeOpacity": 1,
-            "strokeWidth": 3,
-            "strokeDashstyle": "dash",
-            "strokeLinecap": "round"
-        };
-    }
-    case 'MultiLineString':
-    case 'LineString':
-        return {
-            "strokeColor": "#0000FF",
-            "strokeOpacity": 1,
-            "strokeWidth": 3
-        };
-    case 'Point':
-    case 'MultiPoint': {
-        return layer.styleName === "marker" ? {
-            "externalGraphic": "http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/images/marker-icon.png",
-            "graphicWidth": 25,
-            "graphicHeight": 41,
-            "graphicXOffset": -12, // different offset
-            "graphicYOffset": -41
-        } : {
-            "fillColor": "#FF0000",
-            "fillOpacity": 0,
-            "strokeColor": "#FF0000",
-            "pointRadius": 5,
-            "strokeOpacity": 1,
-            "strokeWidth": 1
-        };
-    }
-    case 'GraticuleLines': {
-        return {
-            "strokeColor": '#ff7800',
-            "strokeOpacity": 0.9,
-            "strokeWidth": 2,
-            "strokeDashstyle": "4 0.5"
-        };
-    }
-    case 'GraticuleFrame': {
-        return {
-            "strokeColor": '#000000',
-            "strokeOpacity": 1.0,
-            "strokeWidth": 1,
-            "fillColor": "#FFFFFF",
-            "fillOpacity": 1.0
-        };
-    }
-    case 'GraticuleXLabels': {
-        return {
-            "fontColor": "#000000",
-            "fontFamily": "12px Calibri,sans-serif",
-            "fontWeight": "bold",
-            "fontSize": "14",
-            "label": "{properties.valueText}",
-            "labelAlign": "cb",
-            "labelOutlineColor": "#FFFFFF",
-            "labelOutlineWidth": 0.5
-        };
-    }
-    case 'GraticuleYLabels': {
-        return {
-            "fontColor": "#000000",
-            "fontFamily": "12px Calibri,sans-serif",
-            "fontWeight": "bold",
-            "fontSize": "14",
-            "label": "{properties.valueText}",
-            "labelAlign": "rm",
-            "labelOutlineColor": "#FFFFFF",
-            "labelOutlineWidth": 0.5
-        };
-    }
-    default: {
-        return {
-            "fillColor": "#0000FF",
-            "fillOpacity": 0.1,
-            "strokeColor": "#0000FF",
-            "pointRadius": 5,
-            "strokeOpacity": 1,
-            "strokeWidth": 1
-        };
-    }
+        case 'Polygon':
+        case 'MultiPolygon': {
+            return {
+                "fillColor": "#0000FF",
+                "fillOpacity": 0.1,
+                "strokeColor": "#0000FF",
+                "strokeOpacity": 1,
+                "strokeWidth": 3,
+                "strokeDashstyle": "dash",
+                "strokeLinecap": "round"
+            };
+        }
+        case 'MultiLineString':
+        case 'LineString':
+            return {
+                "strokeColor": "#0000FF",
+                "strokeOpacity": 1,
+                "strokeWidth": 3
+            };
+        case 'Point':
+        case 'MultiPoint': {
+            return layer.styleName === "marker" ? {
+                "externalGraphic": "http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/images/marker-icon.png",
+                "graphicWidth": 25,
+                "graphicHeight": 41,
+                "graphicXOffset": -12, // different offset
+                "graphicYOffset": -41
+            } : {
+                "fillColor": "#FF0000",
+                "fillOpacity": 0,
+                "strokeColor": "#FF0000",
+                "pointRadius": 5,
+                "strokeOpacity": 1,
+                "strokeWidth": 1
+            };
+        }
+        case 'GraticuleLines': {
+            return {
+                "strokeColor": '#ff7800',
+                "strokeOpacity": 0.9,
+                "strokeWidth": 2,
+                "strokeDashstyle": "4 0.5"
+            };
+        }
+        case 'GraticuleFrame': {
+            return {
+                "strokeColor": '#000000',
+                "strokeOpacity": 1.0,
+                "strokeWidth": 1,
+                "fillColor": "#FFFFFF",
+                "fillOpacity": 1.0
+            };
+        }
+        case 'GraticuleXLabels': {
+            return {
+                "fontColor": "#000000",
+                "fontFamily": "12px Calibri,sans-serif",
+                "fontWeight": "bold",
+                "fontSize": "14",
+                "label": "{properties.valueText}",
+                "labelAlign": "cb",
+                "labelOutlineColor": "#FFFFFF",
+                "labelOutlineWidth": 0.5
+            };
+        }
+        case 'GraticuleYLabels': {
+            return {
+                "fontColor": "#000000",
+                "fontFamily": "12px Calibri,sans-serif",
+                "fontWeight": "bold",
+                "fontSize": "14",
+                "label": "{properties.valueText}",
+                "labelAlign": "rm",
+                "labelOutlineColor": "#FFFFFF",
+                "labelOutlineWidth": 0.5
+            };
+        }
+        default: {
+            return {
+                "fillColor": "#0000FF",
+                "fillOpacity": 0.1,
+                "strokeColor": "#0000FF",
+                "pointRadius": 5,
+                "strokeOpacity": 1,
+                "strokeWidth": 1
+            };
+        }
     }
 };
 
