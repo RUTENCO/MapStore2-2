@@ -37,3 +37,6 @@ modelo predictivo/logs/*.log
 
 # clave de firebase de los sensores
 estacion-alertas-tempranas-firebase-adminsdk-fbsvc-0bb37ba309.json
+
+# Credenciales de acceso a la base de datos del datalake
+static/datalake/cred/*

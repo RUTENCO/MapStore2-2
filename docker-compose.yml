@@ -62,6 +62,8 @@ services:
         MAPSTORE_WEBAPP_SRC: "./product/target/mapstore.war"
     container_name: mapstore
     command: [ "wait-for-postgres", "postgres", "5432", "postgres", "postgres", "catalina.sh", "run" ]
+    environment:
+      - JAVA_OPTS=-DPRINT_BASE_URL=pdf
     depends_on:
       postgres:
         condition: service_healthy

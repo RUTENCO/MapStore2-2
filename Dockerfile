@@ -33,6 +33,9 @@ COPY --from=mother "/mapstore/docker" "${CATALINA_BASE}/docker/"
 COPY binary/tomcat/conf/server.xml "${CATALINA_BASE}/conf/"
 RUN sed -i -e 's/8082/8080/g' ${CATALINA_BASE}/conf/server.xml
 
+# Copiar configuración de Geostore datasource override
+COPY docker/geostore-datasource-ovr-postgres.properties "${CATALINA_BASE}/conf/geostore-datasource-ovr-postgres.properties"
+
 RUN mkdir -p ${DATA_DIR}
 RUN cp ${CATALINA_BASE}/docker/wait-for-postgres.sh /usr/bin/wait-for-postgres
 RUN chmod +x /usr/bin/wait-for-postgres

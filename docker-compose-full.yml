@@ -88,7 +88,7 @@ services:
       - TZ=America/Bogota
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - PYTHONUNBUFFERED=1
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-00 02 * * *}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-00 01 * * *}
       - RUN_ON_START=${RUN_ON_START:-false}
     volumes:
       - ./modelo predictivo/data:/app/data:rw
@@ -151,10 +151,12 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        OVR: "geostore-datasource-ovr.properties"
+        OVR: "geostore-datasource-ovr-postgres.properties"
         MAPSTORE_WEBAPP_SRC: "./product/target/mapstore.war"
     container_name: mapstore
     command: [ "wait-for-postgres", "postgres", "5432", "postgres", "postgres", "catalina.sh", "run" ]
+    environment:
+      - JAVA_OPTS=-DPRINT_BASE_URL=pdf -Ddatadir.location=/usr/local/tomcat/datadir -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
     depends_on:
       postgres:
         condition: service_healthy
@@ -164,7 +166,7 @@ services:
       - "8080:8080"
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
-      - ./docker/geostore-datasource-ovr-postgres.properties:/usr/local/tomcat/conf/geostore-datasource-ovr.properties:ro
+      - ./docker/proxy.properties:/usr/local/tomcat/datadir/proxy.properties:ro
     networks:
       - mapstore-network
     profiles:
@@ -192,6 +194,31 @@ services:
     networks:
       - mapstore-network
     profiles:
+      - mapstore
+
+
+  modelo-pred-menm:
+    build:
+      context: ./modelo pred menm/modelo
+      dockerfile: Dockerfile
+    container_name: modelo_pred_menm
+    environment:
+      - TZ=America/Bogota
+      - MODEL_DATA_ROOT=/data/datalake
+      - OUTPUT_RASTER_DIR=/mnt/uploads
+      - CRON_SCHEDULE=0 3 15 * *
+      - RUN_ON_START=false
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./modelo pred menm/static/datalake:/data/datalake:rw
+      - geoserver_uploads:/mnt/uploads:rw
+    restart: unless-stopped
+    networks:
+      - mapstore-network
+    depends_on:
+      - geoserver
+    profiles:
+      - modelo-pred-menm
       - mapstore
 
 
