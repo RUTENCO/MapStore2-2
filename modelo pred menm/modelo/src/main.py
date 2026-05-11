@@ -11,6 +11,7 @@ import os.path
 import numpy as np
 from pathlib import Path
 import gc
+import shutil
 
 np.int = int
 import pandas as pd
@@ -1358,6 +1359,35 @@ def run_model_functions(config, selected_vars, THRESHOLD_75, THRESHOLD_98):
     #
     logging.info("Results raster created")
     #
+
+    # Validación y logging de la ruta de salida
+    if os.path.exists(raster_result_path):
+        file_size = os.path.getsize(raster_result_path) / (1024 * 1024)  # MB
+        logging.info(f"✓ Archivo guardado exitosamente en: {raster_result_path}")
+        logging.info(f"  Tamaño: {file_size:.2f} MB")
+
+        # Verificar si está en /mnt/uploads (volumen de GeoServer)
+        if "/mnt/uploads" in raster_result_path:
+            logging.info(f"✓ Raster disponible en volumen de GeoServer: {raster_result_path}")
+        else:
+            logging.warning(f"⚠ El raster se guardó localmente, NO en /mnt/uploads")
+            logging.warning(f"  Ruta actual: {raster_result_path}")
+            logging.warning(f"  Ruta esperada: /mnt/uploads/{config['raster_result_name']}.tif")
+
+            # Intentar copiar a /mnt/uploads si está disponible
+            try:
+                geoserver_path = Path("/mnt/uploads")
+                if geoserver_path.exists() and geoserver_path.is_dir():
+                    dest_path = geoserver_path / f"{config['raster_result_name']}.tif"
+                    logging.info(f"  📋 Copiando a volumen de GeoServer: {dest_path}")
+                    shutil.copy2(raster_result_path, dest_path)
+                    logging.info(f"✓ Archivo copiado exitosamente a: {dest_path}")
+                else:
+                    logging.debug(f"  /mnt/uploads no existe o no está montado")
+            except Exception as e:
+                logging.warning(f"  ⚠ No se pudo copiar a /mnt/uploads: {e}")
+    else:
+        logging.error(f"✗ Error: No se pudo crear el archivo en {raster_result_path}")
 
 
 if __name__ == "__main__":
