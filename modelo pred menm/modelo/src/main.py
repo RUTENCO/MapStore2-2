@@ -3,6 +3,7 @@ from firebase_admin import credentials, db
 import os
 import sys
 from datetime import datetime
+import requests
 
 import glob
 import json
@@ -181,23 +182,21 @@ def descargar_datos_firebase(config):
 
     logging.info("Starting data download from Firebase")
     #
-    # Ruta al archivo JSON de tu Service Account
-    cred = credentials.Certificate(config["credentials_firebase"])
+    # La URL base de tu base de datos
+    base_url = "https://geohazards-unal-default-rtdb.firebaseio.com/"
 
-    # Inicializa la app con la URL de tu Realtime Database
-    firebase_admin.initialize_app(
-        cred, {"databaseURL": "https://geohazards-unal-default-rtdb.firebaseio.com/"}
-    )
-
-    # Referencia al nodo que quieres leer
-    ref_col = db.reference("col")
-    ref_ant = db.reference("ant")
-    ref_sensores = db.reference("sensores_ant")
+    def obtener_datos(nodo):
+        # Añadimos .json al final para la API REST
+        response = requests.get(f"{base_url}/{nodo}.json")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return f"Error: {response.status_code}"
 
     # Leer todos los datos
-    data_col = ref_col.get()
-    data_ant = ref_ant.get()
-    data_sensores = ref_sensores.get()
+    data_col = obtener_datos("col")
+    data_ant = obtener_datos("ant")
+    data_sensores = obtener_datos("sensores_ant")
 
     # Crear un DataFrame
     df_ant = pd.DataFrame(data_ant)
