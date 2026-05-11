@@ -1,6 +1,6 @@
 # Python 3.11.9
 firebase_admin==7.3.0
-GDAL==3.9.2
+GDAL==3.6.2
 geopandas==1.0.1
 geoserver_rest==2.8.3
 matplotlib==3.10.0

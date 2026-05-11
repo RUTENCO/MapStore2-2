@@ -10,6 +10,7 @@ import logging
 import os.path
 import numpy as np
 from pathlib import Path
+import gc
 
 np.int = int
 import pandas as pd
@@ -417,14 +418,11 @@ def make_block_ids(
     """
 
     logging.info("Starting make block ids")
-    rr, cc = np.indices((height, width))
     row_bin_size = max(1, height // n_row_blocks)
     col_bin_size = max(1, width // n_col_blocks)
-    rbin = rr // row_bin_size
-    cbin = cc // col_bin_size
-    rbin = np.minimum(rbin, n_row_blocks - 1)
-    cbin = np.minimum(cbin, n_col_blocks - 1)
-    block_id = (rbin * n_col_blocks + cbin).astype(np.int32)
+    rbin = np.minimum(np.arange(height) // row_bin_size, n_row_blocks - 1)
+    cbin = np.minimum(np.arange(width) // col_bin_size, n_col_blocks - 1)
+    block_id = (rbin[:, None] * n_col_blocks + cbin[None, :]).astype(np.uint8)
     logging.info("Make block ids completed")
     return block_id.ravel()
 
@@ -476,10 +474,11 @@ def extract_raster_data(config, selected_vars):
         # del raster_data, df_aux
 
     logging.info(f"Start creating dataframe")
-    df_combined = pd.DataFrame(columns_dict)
+    df_combined = pd.DataFrame(columns_dict, copy=False)
     logging.info(f"Dataframe created")
 
     del columns_dict
+    gc.collect()
 
     dem_path = os.path.join(config["geodata_raster_dir"], config["raster_dem_name"])
 
@@ -489,6 +488,8 @@ def extract_raster_data(config, selected_vars):
     # Asignar block_id por defecto con grilla 5x5 (ajustable si se desea)
     block_ids = make_block_ids(height, width, n_row_blocks=5, n_col_blocks=5)
     df_combined["block_id"] = block_ids
+    del block_ids
+    gc.collect()
 
     #
     logging.info("Raster data extraction completed")
@@ -1330,9 +1331,15 @@ def run_model_functions(config, selected_vars, THRESHOLD_75, THRESHOLD_98):
     raster_transform = meta["transform"]
     raster_crs = meta["crs"]
 
+    output_dir = os.getenv("OUTPUT_RASTER_DIR", config["geodata_raster_results_dir"])
+    if not os.path.isabs(output_dir):
+        output_dir = os.path.join(config["data_root"], output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+
     raster_result_path = os.path.join(
         # config["geodata_raster_results_dir"], config["raster_result_name"] + datetime.now().strftime("%Y%m%d_%H%M%S") + ".tif"
-        config["geodata_raster_results_dir"], config["raster_result_name"] + ".tif"
+        output_dir,
+        config["raster_result_name"] + ".tif",
     )
     with rasterio.open(
         raster_result_path,
@@ -1350,22 +1357,6 @@ def run_model_functions(config, selected_vars, THRESHOLD_75, THRESHOLD_98):
 
     #
     logging.info("Results raster created")
-    #
-
-    # name_layer = f"susceptibility"
-
-    # geo = Geoserver(
-    #     "http://127.0.0.1:8080/geoserver", username="admin", password="geoserver"
-    # )
-    # geo.create_coveragestore(
-    #     layer_name=name_layer, path=raster_result_path, workspace="tesis"
-    # )
-    # geo.publish_style(
-    #     layer_name=name_layer, style_name="Raster Susceptibility", workspace="tesis"
-    # )
-
-    #
-    # logging.info("Layer susceptibility published on Geoserver")
     #
 
 
