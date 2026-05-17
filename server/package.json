@@ -1,7 +1,7 @@
 {
   "name": "sensors-api",
   "version": "1.0.0",
-  "description": "API REST de sensores para MapStore2 → Firebase Realtime Database",
+  "description": "Proxy local para la API REST de sensores de estadísticas",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -10,7 +10,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "firebase-admin": "^12.7.0"
+    "express": "^4.19.2"
   }
 }
