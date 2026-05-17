@@ -1,7 +1,7 @@
 /**
  * SensorChart.jsx
  * Gráfica de línea para un sensor individual - estilo shadcn/ui
- * Consume datos desde la API REST (Firebase RTDB) con fallback a datos locales
+ * Consume datos desde la API REST pública de MySQL sin fallback a datos locales
  */
 
 import React, { useState, useEffect } from 'react';
@@ -151,7 +151,7 @@ SensorChart.propTypes = {
 };
 
 SensorChart.defaultProps = {
-    zone: 'Z1',
+    zone: '1',
     station: 'E1'
 };
 

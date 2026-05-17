@@ -5,10 +5,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { SENSORS as DEFAULT_SENSORS } from './mockData';
 
 function SensorSelector({ active, onChange, sensors }) {
-    const list = (sensors && sensors.length) ? sensors : DEFAULT_SENSORS;
+    const list = sensors || [];
 
     function toggle(id) {
         if (active.includes(id)) {

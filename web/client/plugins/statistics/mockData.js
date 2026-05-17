@@ -1,22 +1,18 @@
 /**
  * mockData.js
  * Capa de datos para sensores.
- * → En desarrollo: llama a http://localhost:3001/api (proxy webpack → /api)
- * → En producción: llama a /api (nginx proxea a sensors-api:3001)
- *
- * El backend consulta Firebase Realtime Database.
- * Los datos quemados se mantienen como fallback si la API no está disponible.
+ * → Consume la API pública de MySQL para estadísticas y filtros.
+ * → Si la API no responde, devuelve listas vacías para que la UI muestre estado sin datos.
  */
 
-import { subDays, subHours, format } from 'date-fns';
+import { format } from 'date-fns';
 
 // ── Base URL automática ───────────────────────────────────────────────
-// En dev webpack proxea /api → localhost:3001
-// En prod nginx proxea /api → sensors-api:3001
-const API_BASE = '/api';
+const REMOTE_API_URL = 'https://daa.yjk.mybluehost.me/api/obtener_datos.php';
+const LOCAL_API_URL = '/api/obtener_datos.php';
 const LOCAL_API_PORT = '3001';
-const DEFAULT_ZONE = 'Z1';
-const DEFAULT_STATION = 'E1';
+const DEFAULT_ZONE = '';
+const DEFAULT_STATION = '';
 
 function isLocalHost() {
     if (typeof window === 'undefined') return false;
@@ -24,20 +20,28 @@ function isLocalHost() {
 }
 
 function getApiBaseCandidates() {
-    const candidates = [API_BASE];
+    const candidates = [LOCAL_API_URL, REMOTE_API_URL];
     if (isLocalHost()) {
-        candidates.push(`${window.location.protocol}//${window.location.hostname}:${LOCAL_API_PORT}/api`);
+        candidates.unshift(`${window.location.protocol}//${window.location.hostname}:${LOCAL_API_PORT}/api/obtener_datos.php`);
     }
     return [...new Set(candidates)];
 }
 
-async function fetchJSONWithApiFallback(path) {
+function buildQuery(params = {}) {
+    const cleaned = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
+    if (!cleaned.length) return '';
+    const search = new URLSearchParams(cleaned.map(([k, v]) => [k, String(v)]));
+    return `?${search.toString()}`;
+}
+
+async function fetchJSONWithApiFallback(params = {}) {
     let lastError;
     const bases = getApiBaseCandidates();
+    const search = buildQuery(params);
 
     for (const base of bases) {
         try {
-            const res = await fetch(`${base}${path}`);
+            const res = await fetch(`${base}${search}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return await res.json();
         } catch (error) {
@@ -48,27 +52,172 @@ async function fetchJSONWithApiFallback(path) {
     throw lastError || new Error('No se pudo consultar la API de sensores');
 }
 
-function buildQuery(params = {}) {
-    const cleaned = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
-    if (!cleaned.length) return '';
-    const search = new URLSearchParams(cleaned.map(([k, v]) => [k, String(v)]));
-    return `?${search.toString()}`;
+function normalizeZoneId(zone) {
+    const value = String(zone || DEFAULT_ZONE).trim();
+    const numeric = value.match(/^(?:Z)?([1-4])$/i);
+    return numeric ? numeric[1] : value;
+}
+
+function getPeriodDays(period) {
+    const match = String(period || '7d').match(/^(\d+)d$/i);
+    return match ? Number(match[1]) : 7;
+}
+
+function extractArray(payload, preferredKeys = []) {
+    if (Array.isArray(payload)) return payload;
+
+    if (!payload || typeof payload !== 'object') return [];
+
+    for (const key of preferredKeys) {
+        if (Array.isArray(payload[key])) return payload[key];
+    }
+
+    const genericKeys = ['datos', 'data', 'rows', 'results', 'items', 'records', 'registros', 'zonas', 'estaciones', 'sensores', 'variables'];
+    for (const key of genericKeys) {
+        if (Array.isArray(payload[key])) return payload[key];
+    }
+
+    const values = Object.values(payload);
+    if (values.length && values.every(value => value && typeof value === 'object' && !Array.isArray(value))) {
+        return Object.entries(payload).map(([id, value]) => ({ id, ...value }));
+    }
+
+    return [];
+}
+
+function pickFirstDefined(source, keys) {
+    for (const key of keys) {
+        if (source && source[key] !== undefined && source[key] !== null && source[key] !== '') {
+            return source[key];
+        }
+    }
+    return null;
+}
+
+function parseApiTimestamp(row) {
+    const datetime = pickFirstDefined(row, ['fecha_hora', 'datetime']);
+    if (datetime) {
+        const parsedDateTime = Date.parse(datetime);
+        if (!Number.isNaN(parsedDateTime)) return parsedDateTime;
+    }
+
+    const datePart = pickFirstDefined(row, ['fecha_lectura', 'fecha']);
+    const timePart = pickFirstDefined(row, ['hora_lectura', 'hora']);
+    if (datePart && timePart) {
+        const parsedComposed = Date.parse(`${datePart}T${timePart}`);
+        if (!Number.isNaN(parsedComposed)) return parsedComposed;
+    }
+
+    const timestampValue = pickFirstDefined(row, [
+        'timestamp',
+        'recorded_at',
+        'createdAt',
+        'created_at',
+        'time',
+        'ts'
+    ]);
+
+    if (timestampValue !== null) {
+        const asNumber = Number(timestampValue);
+        if (Number.isFinite(asNumber)) return asNumber;
+        const parsed = Date.parse(String(timestampValue));
+        if (!Number.isNaN(parsed)) return parsed;
+    }
+
+    return null;
+}
+
+function normalizeReadingRow(row, sensorId, fallbackId) {
+    if (!row || typeof row !== 'object') return null;
+
+    const timestamp = parseApiTimestamp(row);
+    const rawValue = pickFirstDefined(row, [sensorId, 'value', 'valor', 'reading', 'measurement', 'measure', 'dato']);
+    const value = Number(rawValue);
+
+    if (!timestamp || Number.isNaN(value)) return null;
+
+    return {
+        id: String(pickFirstDefined(row, ['id', 'key', 'uuid']) || fallbackId || timestamp),
+        timestamp: new Date(timestamp).toISOString(),
+        label: row.label || format(new Date(timestamp), 'dd/MM HH:mm'),
+        value: Number(value.toFixed(3))
+    };
+}
+
+function normalizeZoneItem(zone, fallbackId) {
+    if (!zone || typeof zone !== 'object') return null;
+    const id = String(pickFirstDefined(zone, ['id_zona', 'zona_id', 'zonaId', 'id', 'zone_id']) || fallbackId || '').trim();
+    if (!id) return null;
+    return {
+        id: normalizeZoneId(id),
+        name: pickFirstDefined(zone, ['nombre', 'name', 'zona_nombre']) || normalizeZoneId(id)
+    };
+}
+
+function normalizeStationItem(station, fallbackId) {
+    if (!station || typeof station !== 'object') return null;
+    const stationName = String(pickFirstDefined(station, ['nombre', 'estacion', 'id_estacion_nombre', 'station']) || '').trim();
+    const id = String(
+        (stationName && /^E\d+$/i.test(stationName) ? stationName : pickFirstDefined(station, ['id_estacion_nombre', 'estacion', 'station', 'stationId', 'id_estacion', 'id']))
+            || fallbackId
+            || ''
+    ).trim();
+    if (!id) return null;
+    return {
+        id,
+        name: pickFirstDefined(station, ['descripcion', 'name', 'estacion_nombre']) || id
+    };
+}
+
+function normalizeStats(payload, fallbackId) {
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+        const direct = {
+            min: pickFirstDefined(payload, ['min', 'minimum', 'menor']),
+            avg: pickFirstDefined(payload, ['avg', 'average', 'promedio', 'media']),
+            max: pickFirstDefined(payload, ['max', 'maximum', 'mayor'])
+        };
+
+        if (direct.min !== null && direct.avg !== null && direct.max !== null) {
+            return {
+                min: Number(direct.min).toFixed(2),
+                avg: Number(direct.avg).toFixed(2),
+                max: Number(direct.max).toFixed(2)
+            };
+        }
+
+        const rows = extractArray(payload, ['datos', fallbackId]);
+        if (rows.length) {
+            const sensorMin = Number(rows[0][`${fallbackId}_min`]);
+            const sensorMax = Number(rows[0][`${fallbackId}_max`]);
+            const sensorAvg = Number(rows[0][`${fallbackId}_prom`] ?? rows[0][`${fallbackId}_avg`]);
+
+            if (!Number.isNaN(sensorMin) && !Number.isNaN(sensorMax) && !Number.isNaN(sensorAvg)) {
+                return {
+                    min: sensorMin.toFixed(2),
+                    avg: sensorAvg.toFixed(2),
+                    max: sensorMax.toFixed(2)
+                };
+            }
+        }
+    }
+
+    return null;
 }
 
 export const ZONES = [
-    { id: 'Z1', name: 'Zona 1' },
-    { id: 'Z2', name: 'Zona 2' },
-    { id: 'Z3', name: 'Zona 3' },
-    { id: 'Z4', name: 'Zona 4' }
+    { id: '1', name: '1' },
+    { id: '2', name: '2' },
+    { id: '3', name: '3' },
+    { id: '4', name: '4' }
 ];
 
 export const STATIONS = [
-    { id: 'E1', name: 'Estación 01' },
-    { id: 'E2', name: 'Estación 02' },
-    { id: 'E3', name: 'Estación 03' }
+    { id: 'E1', name: 'E1' },
+    { id: 'E2', name: 'E2' },
+    { id: 'E3', name: 'E3' }
 ];
 
-// ── Sensores (fallback local, se sobreescriben con datos reales) ──────
+// ── Sensores esperados por la interfaz ───────────────────────────────
 export const SENSORS = [
     { id: 'T1', name: 'Temperatura Suelo 1', unit: '°C', color: '#ef4444' },
     { id: 'H1', name: 'Humedad Suelo 1', unit: '%', color: '#3b82f6' },
@@ -82,102 +231,121 @@ export const SENSORS = [
     { id: 'R1', name: 'Lluvia', unit: 'mm', color: '#0ea5e9' }
 ];
 
-// ── Datos quemados de respaldo ────────────────────────────────────────
-function generateReadings(sensorId, days = 30) {
-    const now = new Date();
-    const readings = [];
-    const baseValues = { T1: 22, H1: 60, T2: 23, H2: 58, T3: 22, H3: 62, T4: 26, H4: 68, W1: 4.5, R1: 0.8 };
-    const amplitude  = { T1: 5, H1: 12, T2: 5, H2: 12, T3: 5, H3: 12, T4: 7, H4: 14, W1: 3, R1: 2 };
-    const base = baseValues[sensorId] ?? 50;
-    const amp  = amplitude[sensorId]  ?? 10;
-    const totalPoints = days * 4;
-    for (let i = totalPoints; i >= 0; i--) {
-        const date = subHours(now, i * 6);
-        const noise = (Math.random() - 0.5) * amp;
-        const trend = Math.sin((i / totalPoints) * Math.PI * 4) * amp * 0.5;
-        readings.push({
-            timestamp: date.toISOString(),
-            label: format(date, 'dd/MM HH:mm'),
-            value: parseFloat((base + trend + noise).toFixed(2))
-        });
-    }
-    return readings;
-}
+function extractSensorIdsFromRows(rows = []) {
+    const knownSensorIds = new Set(SENSORS.map(sensor => sensor.id));
+    const ids = new Set();
 
-export const FALLBACK_DATA = SENSORS.reduce((acc, s) => {
-    acc[s.id] = generateReadings(s.id, 30);
-    return acc;
-}, {});
+    rows.forEach(row => {
+        if (!row || typeof row !== 'object') return;
+
+        Object.keys(row).forEach(key => {
+            if (knownSensorIds.has(key)) {
+                const numericValue = Number(row[key]);
+                if (!Number.isNaN(numericValue)) {
+                    ids.add(key);
+                }
+            }
+        });
+    });
+
+    return [...ids];
+}
 
 // ── API: obtener zonas ───────────────────────────────────────────────
 export async function fetchZones() {
     try {
-        return await fetchJSONWithApiFallback('/zones');
+        const response = await fetchJSONWithApiFallback({ tipo: 'zonas', formato: 'json' });
+        const zones = extractArray(response).map((zone, index) => normalizeZoneItem(zone, index + 1)).filter(Boolean);
+        return zones;
     } catch {
-        return ZONES;
+        return [];
     }
 }
 
 // ── API: obtener estaciones por zona ─────────────────────────────────
 export async function fetchStations(zone = DEFAULT_ZONE) {
     try {
-        return await fetchJSONWithApiFallback(`/zones/${zone}/stations`);
+        const zoneId = normalizeZoneId(zone);
+        const response = await fetchJSONWithApiFallback({ zona_id: zoneId, tipo: 'estaciones', formato: 'json' });
+        const stations = extractArray(response).map((station, index) => normalizeStationItem(station, index + 1)).filter(Boolean);
+        return stations;
     } catch {
-        return STATIONS;
+        return [];
     }
 }
 
 // ── API: obtener lista de sensores ────────────────────────────────────
 export async function fetchSensors(options = {}) {
-    const zone = options.zone || DEFAULT_ZONE;
-    const station = options.station || DEFAULT_STATION;
+    const zoneId = normalizeZoneId(options.zone || DEFAULT_ZONE);
+    const stationId = options.station || DEFAULT_STATION;
     try {
-        const query = buildQuery({ zone, station });
-        return await fetchJSONWithApiFallback(`/sensors${query}`);
+        const response = await fetchJSONWithApiFallback({
+            zona_id: zoneId,
+            tipo: 'ultimas',
+            estacion: stationId,
+            limite: 50,
+            offset: 0,
+            formato: 'json'
+        });
+
+        const rows = extractArray(response, ['datos']);
+        const sensorIds = extractSensorIdsFromRows(rows);
+
+        const sensors = SENSORS.filter(sensor => sensorIds.includes(sensor.id));
+        return sensors;
     } catch {
-        return SENSORS;
+        return [];
     }
 }
 
 // ── API: obtener lecturas de un sensor filtradas por período ──────────
 export async function fetchReadings(sensorId, period = '7d', options = {}) {
-    const zone = options.zone || DEFAULT_ZONE;
-    const station = options.station || DEFAULT_STATION;
+    const zoneId = normalizeZoneId(options.zone || DEFAULT_ZONE);
+    const stationId = options.station || DEFAULT_STATION;
     try {
-        const query = buildQuery({ period, zone, station });
-        const rows = await fetchJSONWithApiFallback(`/sensors/${sensorId}/readings${query}`);
-        // Normalizar: asegurar tipo numérico para Recharts
-        return rows.map(r => ({
-            ...r,
-            value: parseFloat(r.value)
-        }));
+        const response = await fetchJSONWithApiFallback({
+            zona_id: zoneId,
+            tipo: 'ultimas',
+            estacion: stationId,
+            variables: sensorId,
+            dias: getPeriodDays(period),
+            limite: 5000,
+            offset: 0,
+            formato: 'json'
+        });
+
+        const rows = extractArray(response, ['datos', sensorId])
+            .map((row, index) => normalizeReadingRow(row, sensorId, `${sensorId}-${index}`))
+            .filter(Boolean)
+            .sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
+
+        if (rows.length) return rows;
     } catch {
-        // Fallback a datos quemados si la API no responde
-        const all = FALLBACK_DATA[sensorId] ?? [];
-        const now = new Date();
-        const cutoff = {
-            '24h': subHours(now, 24),
-            '7d': subDays(now, 7),
-            '30d': subDays(now, 30),
-            '90d': subDays(now, 90)
-        }[period] ?? subDays(now, 7);
-        return all.filter(r => new Date(r.timestamp) >= cutoff);
+        return [];
     }
+
+    return [];
 }
 
 // ── API: estadísticas de un sensor ───────────────────────────────────
 export async function fetchStats(sensorId, period = '7d', options = {}) {
-    const zone = options.zone || DEFAULT_ZONE;
-    const station = options.station || DEFAULT_STATION;
+    const zoneId = normalizeZoneId(options.zone || DEFAULT_ZONE);
+    const stationId = options.station || DEFAULT_STATION;
     try {
-        const query = buildQuery({ period, zone, station });
-        const s = await fetchJSONWithApiFallback(`/sensors/${sensorId}/stats${query}`);
-        return {
-            min: parseFloat(s.min).toFixed(2),
-            avg: parseFloat(s.avg).toFixed(2),
-            max: parseFloat(s.max).toFixed(2)
-        };
+        const response = await fetchJSONWithApiFallback({
+            zona_id: zoneId,
+            tipo: 'estadisticas',
+            estacion: stationId,
+            variables: sensorId,
+            dias: getPeriodDays(period),
+            formato: 'json'
+        });
+
+        const normalized = normalizeStats(response, sensorId);
+        if (normalized) return normalized;
     } catch {
         return null;
     }
+
+    return null;
 }
