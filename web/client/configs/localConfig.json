@@ -934,8 +934,6 @@
           }
         }
       },
-      { "name": "GlobeGif" },
-      { "name": "FormPanel" },
       { "name": "Footer" },
       { "name": "About" },
       {
