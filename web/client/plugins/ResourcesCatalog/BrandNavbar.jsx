@@ -18,7 +18,7 @@ import Button from '../../components/layout/Button';
 import tooltip from '../../components/misc/enhancers/tooltip';
 import Spinner from '../../components/layout/Spinner';
 import MenuNavLink from './components/MenuNavLink';
-import src from '../../product/assets/img/icono_inicio.png';
+// import src from '../../product/assets/img/icono_inicio.png';
 // Importa tu LESS (ajusta ruta si hace falta)
 // import '../../themes/default/less/resources-catalog/_brand-navbar.less';
 import covColombia from '../../product/assets/img/cov_colombia.png';
@@ -250,19 +250,17 @@ BrandNavbar.contextTypes = {
 };
 
 BrandNavbar.defaultProps = {
-    logo: {
+    /* logo: {
         src,
         href: '#/'
-    },
+    }, */
     leftMenuItems: [
         {
-            type: 'dropdown',
-            labelId: 'Líneas de Investigación',
-            glyph: 'globe',
-            variant: 'default',
-            items: [
-                { type: 'link', labelId: 'Estadisticas', href: '#/statistics' }
-            ]
+            type: 'link',
+            labelId: 'Datos Climatológicos',
+            glyph: 'signal',
+            href: '#/statistics'
+
         }
         /* {
             type: 'dropdown',

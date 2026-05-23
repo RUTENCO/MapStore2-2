@@ -13,7 +13,7 @@ import Text from '../../components/layout/Text';
 import { Jumbotron } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import src from '../../product/assets/img/banner-Andina.png';
-import miniciencias from '../../product/assets/img/logo-minciencias.png';
+import miniciencias from '../../product/assets/img/Logo Miniciencias.svg';
 /**
  * This plugin shows a main description in the homepage
  * @memberof plugins
@@ -35,8 +35,14 @@ function HomeDescription({
             className={`${className} ms-secondary-colors _padding-lg _relative`}
             style={{
                 ...(backgroundSrc && {
-                    backgroundImage: `url('${backgroundSrc}')`
+                    backgroundImage: `url('${backgroundSrc}')`,
+                    backgroundPosition: 'center', // Centra la imagen de fondo de las montañas
+                    backgroundSize: 'cover'       // Asegura que cubra todo el espacio sin deformarse
                 }),
+                display: 'flex',                  // Habilita flexbox en el contenedor principal
+                justifyContent: 'center',         // Centra el contenido horizontalmente en el banner
+                alignItems: 'center',             // Centra el contenido verticalmente en el banner
+                minHeight: '200px',               // Le da una altura mínima al banner para que respire
                 ...style
             }}
         >
