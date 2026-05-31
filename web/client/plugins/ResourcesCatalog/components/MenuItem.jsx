@@ -110,6 +110,7 @@ const MenuItem = ({
         Component,
         target: itemTarget,
         className,
+        disabled,
         noCaret,
         glyph,
         iconType,
@@ -164,7 +165,7 @@ const MenuItem = ({
 
     if (type === 'link') {
         return (<li>
-            <MenuNavLink href={href} target={target}>
+            <MenuNavLink href={disabled ? undefined : href} target={disabled ? undefined : target} disabled={disabled}>
                 {glyph ? <Glyphicon glyph={glyph} type={iconType}/> : null}
                 {glyph && labelNode ? ' ' : null}
                 {labelNode}

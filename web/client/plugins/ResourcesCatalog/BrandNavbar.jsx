@@ -9,6 +9,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Glyphicon } from 'react-bootstrap';
+import { connect } from 'react-redux';
 
 import { createPlugin } from "../../utils/PluginsUtils";
 import FlexBox from '../../components/layout/FlexBox';
@@ -18,6 +19,7 @@ import Button from '../../components/layout/Button';
 import tooltip from '../../components/misc/enhancers/tooltip';
 import Spinner from '../../components/layout/Spinner';
 import MenuNavLink from './components/MenuNavLink';
+import { pathnameSelector } from '../../selectors/router';
 // import src from '../../product/assets/img/icono_inicio.png';
 // Importa tu LESS (ajusta ruta si hace falta)
 // import '../../themes/default/less/resources-catalog/_brand-navbar.less';
@@ -61,9 +63,10 @@ BrandNavbarMenuItem.defaultProps = {
 /* --------------------
    Componente principal
    -------------------- */
-function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo }, context) {
+function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo, pathname }, context) {
     const { loadedPlugins } = context;
     const configuredItems = usePluginItems({ items, loadedPlugins });
+    const isMapViewerPage = pathname.startsWith('/viewer') || pathname.startsWith('/context');
 
     const pluginLeftMenuItems = configuredItems
         .filter(({ target }) => target === 'left-menu')
@@ -97,6 +100,8 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
             .sort((a, b) => (a.position || 0) - (b.position || 0));
 
     // Asegura apariencia uniforme: inyecta className y variant por defecto
+    const hideStatisticsItemInViewer = (item) => !(isMapViewerPage && item.href === '#/statistics');
+
     const ensureMenuAppearance = (item) => ({
         ...item,
         className: item.className ? `${item.className} ms-menu-link` : 'ms-menu-link',
@@ -107,17 +112,17 @@ function BrandNavbar({ size, variant, leftMenuItems, rightMenuItems, items, logo
     const dropdownMenuItems = useMemo(() => addPositionAndSort([
         ...leftMenuItems.filter(item => item.type === 'dropdown').map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
         ...pluginLeftMenuItems.filter(item => item.type === 'dropdown')
-    ]).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems]);
+    ].filter(hideStatisticsItemInViewer)).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems, isMapViewerPage]);
 
     const otherLeftMenuItems = useMemo(() => addPositionAndSort([
         ...leftMenuItems.filter(item => item.type !== 'dropdown').map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
         ...pluginLeftMenuItems.filter(item => item.type !== 'dropdown')
-    ]).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems]);
+    ].filter(hideStatisticsItemInViewer)).map(ensureMenuAppearance), [leftMenuItems, pluginLeftMenuItems, isMapViewerPage]);
 
     const rightItemsSorted = useMemo(() => addPositionAndSort([
         ...rightMenuItems.map((menuItem, idx) => ({ ...menuItem, position: idx + 1 })),
         ...pluginRightMenuItems
-    ]).map(ensureMenuAppearance), [rightMenuItems, pluginRightMenuItems]);
+    ].filter(hideStatisticsItemInViewer)).map(ensureMenuAppearance), [rightMenuItems, pluginRightMenuItems, isMapViewerPage]);
 
     // Render
     return (
@@ -242,7 +247,8 @@ BrandNavbar.propTypes = {
     leftMenuItems: PropTypes.array,
     rightMenuItems: PropTypes.array,
     items: PropTypes.array,
-    logo: PropTypes.object
+    logo: PropTypes.object,
+    pathname: PropTypes.string
 };
 
 BrandNavbar.contextTypes = {
@@ -297,5 +303,7 @@ BrandNavbar.defaultProps = {
 };
 
 export default createPlugin('BrandNavbar', {
-    component: BrandNavbar
+    component: connect(state => ({
+        pathname: pathnameSelector(state)
+    }))(BrandNavbar)
 });

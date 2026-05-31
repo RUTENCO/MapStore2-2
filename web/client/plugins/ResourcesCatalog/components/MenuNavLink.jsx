@@ -11,16 +11,22 @@ import React, { forwardRef } from 'react';
 const MenuNavLink = forwardRef(({
     children,
     className,
+    disabled,
+    onClick,
     ...props
 }, ref) => {
+    const Element = disabled ? 'span' : 'a';
+
     return (
-        <a
+        <Element
             {...props}
             ref={ref}
-            className={`nav-link${className ? ` ${className}` : ''}`}
+            aria-disabled={disabled || undefined}
+            onClick={disabled ? (event) => event.preventDefault() : onClick}
+            className={`nav-link${disabled ? ' disabled' : ''}${className ? ` ${className}` : ''}`}
         >
             {children}
-        </a>
+        </Element>
     );
 });
 
