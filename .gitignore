@@ -33,7 +33,9 @@ __pycache__
 .env
 
 # Logs del orchestrator
-modelo predictivo/logs/*.log
+*.log
+**/logs/*.log
+
 
 # clave de firebase de los sensores
 estacion-alertas-tempranas-firebase-adminsdk-fbsvc-0bb37ba309.json
