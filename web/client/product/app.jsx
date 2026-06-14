@@ -20,7 +20,10 @@ const rewritePrintUrl = (value) => {
     }
     return value
         .replace(/^https?:\/\/localhost:8081\//, 'http://geoserver:8080/')
-        .replace(/^https?:\/\/localhost\/geoserver\//, 'http://geoserver:8080/geoserver/');
+        .replace(/^https?:\/\/localhost\/geoserver\//, 'http://geoserver:8080/geoserver/')
+        .replace(/^https?:\/\/81\.17\.96\.160:8081\//, 'http://geoserver:8080/')
+        .replace(/^https?:\/\/colombiariskmap\.com\/geoserver\//, 'http://geoserver:8080/geoserver/')
+        .replace(/^https?:\/\/www\.colombiariskmap\.com\/geoserver\//, 'http://geoserver:8080/geoserver/');
 };
 
 addTransformer('rewritePrintUrls', (state, spec) => Promise.resolve({
