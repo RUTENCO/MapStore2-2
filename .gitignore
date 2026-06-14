@@ -31,6 +31,8 @@ __pycache__
 
 # Environment variables with sensitive information
 .env
+*.env
+**/env/*.env
 
 # Logs del orchestrator
 *.log
