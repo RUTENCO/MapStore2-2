@@ -2,10 +2,15 @@
  * server/index.js
  * Proxy local para la API pública de estaciones agrícolas.
  * Expone solo /api/obtener_datos.php.
+ *
+ * Nota: Variables de entorno se cargan vía docker-compose (env_file: .env)
+ * o vía dotenv en desarrollo local. NO se copia .env al contenedor por seguridad.
  */
 
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+// dotenv solo se carga en desarrollo local (cuando se ejecuta con npm run dev)
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const express = require('express');
 const cors = require('cors');
