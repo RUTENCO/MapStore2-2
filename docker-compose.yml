@@ -1,47 +1,40 @@
-
-networks:
-  mapstore-network:
-    driver: bridge
-
-volumes:
-  pg_data:
-  geoserver_data:
-  geoserver_uploads:
-  mapstore_data:
+name: sat_mapstore_system
 
 services:
-
-  # 1. Base de datos PostGIS (persistencia en pg_data)
   postgres:
     build:
-      context: ./docker/postgres/
+      context: "./docker/postgres/"
     image: geosolutions-mapstore/postgis
     container_name: postgres
     restart: on-failure
     healthcheck:
-      test: /usr/bin/pg_isready -U postgres
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 10s
       retries: 120
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: geostore
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERPASS}
+      POSTGRES_DB: ${POSTGRES_DB}
+      GEOSTORE_DB_USER: ${GEOSTORE_DB_USER}
+      GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
+      GEOSTORE_DB_SCHEMA: ${GEOSTORE_DB_SCHEMA}
+      PGDATA: /var/lib/postgresql/data
     volumes:
-    - pg_data:${PGDATA:-/var/lib/postgresql/data}:rw
+      - pg_data:/var/lib/postgresql/data:rw
     ports:
-      - 5432
+      - "5433:5432"
     networks:
       - mapstore-network
+    profiles:
+      - mapstore
 
-  # 2. GeoServer (configuración en geoserver_data + uploads)
   geoserver:
     image: kartoza/geoserver:2.21.0
     container_name: geoserver
-    #restart: always  # Uncomment if you want to always restart
     environment:
-      GEOSERVER_ADMIN_USER: admin
-      GEOSERVER_ADMIN_PASSWORD: geoserver
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD}
     ports:
       - "8081:8080"
     volumes:
@@ -51,19 +44,31 @@ services:
       - postgres
     networks:
       - mapstore-network
+    profiles:
+      - mapstore
 
-  # 3. MapStore (persistencia en mapstore_data)
   mapstore:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        OVR: "geostore-datasource-ovr.properties"
+        OVR: geostore-datasource-ovr-postgres.properties
         MAPSTORE_WEBAPP_SRC: "./product/target/mapstore.war"
     container_name: mapstore
-    command: [ "wait-for-postgres", "postgres", "5432", "postgres", "postgres", "catalina.sh", "run" ]
+    command:
+      - sh
+      - -lc
+      - |
+        sed -i "s|GEOSTORE_USER_PLACEHOLDER|$${GEOSTORE_DB_USER}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+        sed -i "s|GEOSTORE_PASS_PLACEHOLDER|$${GEOSTORE_DB_PASS}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+        exec catalina.sh run
     environment:
-      - JAVA_OPTS=-DPRINT_BASE_URL=pdf
+      JAVA_OPTS: >-
+        -DPRINT_BASE_URL=pdf
+        -Ddatadir.location=/usr/local/tomcat/datadir
+        -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+      GEOSTORE_DB_USER: ${GEOSTORE_DB_USER}
+      GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
     depends_on:
       postgres:
         condition: service_healthy
@@ -73,28 +78,12 @@ services:
       - "8080:8080"
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
-      - ./docker/geostore-datasource-ovr-postgres.properties:/usr/local/tomcat/conf/geostore-datasource-ovr.properties:ro
+      - ./docker/proxy.properties:/usr/local/tomcat/datadir/proxy.properties:ro
     networks:
       - mapstore-network
+    profiles:
+      - mapstore
 
-  # 5. API de sensores (proxy local hacia la API pública MySQL)
-  sensors-api:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: sensors-api
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - STATS_API_BASE_URL=https://daa.yjk.mybluehost.me/api/obtener_datos.php
-      - STATS_API_TIMEOUT_MS=15000
-    ports:
-      - "3001:3001"
-    networks:
-      - mapstore-network
-
-  # 4. (Opcional) Nginx reverse‑proxy
   proxy:
     image: nginx:latest
     container_name: proxy
@@ -104,6 +93,23 @@ services:
       - "80:80"
     depends_on:
       - mapstore
-      - sensors-api
     networks:
       - mapstore-network
+    profiles:
+      - mapstore
+
+networks:
+  sat_network:
+    driver: bridge
+  mapstore-network:
+    driver: bridge
+
+volumes:
+  sat_data:
+    driver: local
+  sat_logs:
+    driver: local
+  pg_data:
+  geoserver_data:
+  geoserver_uploads:
+  mapstore_data:

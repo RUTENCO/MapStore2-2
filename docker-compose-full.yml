@@ -1,22 +1,20 @@
-
-
 name: sat_mapstore_system
 
 services:
   lluvia-processor:
     build:
-      context: ./modelo predictivo/lluvia_processor
+      context: "./modelo predictivo/lluvia_processor"
       dockerfile: Dockerfile
     container_name: sat_lluvia_processor
     environment:
-      - IDEAM_API_TOKEN=${IDEAM_API_TOKEN}
-      - DAYS_BACK=${DAYS_BACK:-30}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - PYTHONUNBUFFERED=1
+      IDEAM_API_TOKEN: ${IDEAM_API_TOKEN}
+      DAYS_BACK: ${DAYS_BACK:-30}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PYTHONUNBUFFERED: "1"
     volumes:
-      - ./modelo predictivo/data/input:/app/data/input:ro
-      - ./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:rw
-      - ./modelo predictivo/logs:/app/logs:rw
+      - "./modelo predictivo/data/input:/app/data/input:ro"
+      - "./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:rw"
+      - "./modelo predictivo/logs:/app/logs:rw"
     networks:
       - sat_network
     restart: "no"
@@ -24,21 +22,20 @@ services:
       - lluvia
       - full-pipeline
 
-
   modelo-sat:
     build:
-      context: ./modelo predictivo/modelo_sat
+      context: "./modelo predictivo/modelo_sat"
       dockerfile: Dockerfile
     container_name: sat_modelo_deslizamientos
     environment:
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - PYTHONUNBUFFERED=1
-      - MODEL_URL=${MODEL_URL}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PYTHONUNBUFFERED: "1"
+      MODEL_URL: ${MODEL_URL}
     volumes:
-      - ./modelo predictivo/data/input:/app/data/input:ro
-      - ./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:ro
-      - ./modelo predictivo/data/output/modelo:/app/data/output/modelo:rw
-      - ./modelo predictivo/logs:/app/logs:rw
+      - "./modelo predictivo/data/input:/app/data/input:ro"
+      - "./modelo predictivo/data/output/lluvia:/app/data/output/lluvia:ro"
+      - "./modelo predictivo/data/output/modelo:/app/data/output/modelo:rw"
+      - "./modelo predictivo/logs:/app/logs:rw"
     networks:
       - sat_network
     depends_on:
@@ -48,23 +45,22 @@ services:
       - modelo
       - full-pipeline
 
-
   geotiff-exporter:
     build:
-      context: ./modelo predictivo/geotiff_exporter
+      context: "./modelo predictivo/geotiff_exporter"
       dockerfile: Dockerfile
     container_name: sat_geotiff_exporter
     environment:
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - PYTHONUNBUFFERED=1
-      - INTERPOLATION_METHOD=${INTERPOLATION_METHOD:-idw}
-      - PIXEL_SIZE=${PIXEL_SIZE:-2000}
-      - IDW_POWER=${IDW_POWER:-3}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PYTHONUNBUFFERED: "1"
+      INTERPOLATION_METHOD: ${INTERPOLATION_METHOD:-idw}
+      PIXEL_SIZE: ${PIXEL_SIZE:-2000}
+      IDW_POWER: ${IDW_POWER:-3}
     volumes:
-      - ./modelo predictivo/data/input:/app/data/input:ro
-      - ./modelo predictivo/data/output/modelo:/app/data/output/modelo:ro
-      - ./modelo predictivo/data/output/geotiff:/app/data/output/geotiff:rw
-      - ./modelo predictivo/logs:/app/logs:rw
+      - "./modelo predictivo/data/input:/app/data/input:ro"
+      - "./modelo predictivo/data/output/modelo:/app/data/output/modelo:ro"
+      - "./modelo predictivo/data/output/geotiff:/app/data/output/geotiff:rw"
+      - "./modelo predictivo/logs:/app/logs:rw"
       - geoserver_uploads:/mnt/uploads:rw
     networks:
       - sat_network
@@ -77,22 +73,21 @@ services:
       - geotiff
       - full-pipeline
 
-
   sat-orchestrator:
     build:
-      context: ./modelo predictivo/sat_orchestrator
+      context: "./modelo predictivo/sat_orchestrator"
       dockerfile: Dockerfile
     image: sat_system-sat-orchestrator:latest
     container_name: sat_orchestrator
     environment:
-      - TZ=America/Bogota
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - PYTHONUNBUFFERED=1
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-00 01 * * *}
-      - RUN_ON_START=${RUN_ON_START:-false}
+      TZ: America/Bogota
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PYTHONUNBUFFERED: "1"
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-"00 01 * * *"}
+      RUN_ON_START: ${RUN_ON_START:-false}
     volumes:
-      - ./modelo predictivo/data:/app/data:rw
-      - ./modelo predictivo/logs:/app/logs:rw
+      - "./modelo predictivo/data:/app/data:rw"
+      - "./modelo predictivo/logs:/app/logs:rw"
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - sat_network
@@ -101,38 +96,40 @@ services:
     profiles:
       - orchestrator
 
-
   postgres:
     build:
-      context: ./docker/postgres/
+      context: "./docker/postgres/"
     image: geosolutions-mapstore/postgis
     container_name: postgres
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "/usr/bin/pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 10s
       retries: 120
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: geostore
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERPASS}
+      POSTGRES_DB: ${POSTGRES_DB}
+      GEOSTORE_DB_USER: ${GEOSTORE_DB_USER}
+      GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
+      GEOSTORE_DB_SCHEMA: ${GEOSTORE_DB_SCHEMA}
+      PGDATA: /var/lib/postgresql/data
     volumes:
-      - pg_data:${PGDATA:-/var/lib/postgresql/data}:rw
+      - pg_data:/var/lib/postgresql/data:rw
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - mapstore-network
     profiles:
       - mapstore
 
-
   geoserver:
     image: kartoza/geoserver:2.21.0
     container_name: geoserver
     environment:
-      GEOSERVER_ADMIN_USER: admin
-      GEOSERVER_ADMIN_PASSWORD: geoserver
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD}
     ports:
       - "8081:8080"
     volumes:
@@ -145,18 +142,28 @@ services:
     profiles:
       - mapstore
 
-
   mapstore:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        OVR: "geostore-datasource-ovr-postgres.properties"
+        OVR: geostore-datasource-ovr-postgres.properties
         MAPSTORE_WEBAPP_SRC: "./product/target/mapstore.war"
     container_name: mapstore
-    command: [ "wait-for-postgres", "postgres", "5432", "postgres", "postgres", "catalina.sh", "run" ]
+    command:
+      - sh
+      - -lc
+      - |
+        sed -i "s|GEOSTORE_USER_PLACEHOLDER|$${GEOSTORE_DB_USER}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+        sed -i "s|GEOSTORE_PASS_PLACEHOLDER|$${GEOSTORE_DB_PASS}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+        exec catalina.sh run
     environment:
-      - JAVA_OPTS=-DPRINT_BASE_URL=pdf -Ddatadir.location=/usr/local/tomcat/datadir -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+      JAVA_OPTS: >-
+        -DPRINT_BASE_URL=pdf
+        -Ddatadir.location=/usr/local/tomcat/datadir
+        -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+      GEOSTORE_DB_USER: ${GEOSTORE_DB_USER}
+      GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
     depends_on:
       postgres:
         condition: service_healthy
@@ -172,19 +179,16 @@ services:
     profiles:
       - mapstore
 
-
-  # API REST de sensores → Firebase Realtime Database
   sensors-api:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: sensors-api
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
-      - STATS_API_BASE_URL=https://daa.yjk.mybluehost.me/api/obtener_datos.php
-      - STATS_API_TIMEOUT_MS=15000
+      NODE_ENV: production
+      STATS_API_BASE_URL: ${STATS_API_BASE_URL}
+      STATS_API_TIMEOUT_MS: "15000"
     ports:
       - "3001:3001"
     networks:
@@ -192,21 +196,20 @@ services:
     profiles:
       - mapstore
 
-
   modelo-pred-menm:
     build:
-      context: ./modelo pred menm/modelo
+      context: "./modelo pred menm/modelo"
       dockerfile: Dockerfile
     container_name: modelo_pred_menm
     environment:
-      - TZ=America/Bogota
-      - MODEL_DATA_ROOT=/data/datalake
-      - OUTPUT_RASTER_DIR=/mnt/uploads
-      - CRON_SCHEDULE=0 3 15 * *
-      - RUN_ON_START=false
-      - PYTHONUNBUFFERED=1
+      TZ: America/Bogota
+      MODEL_DATA_ROOT: /data/datalake
+      OUTPUT_RASTER_DIR: /mnt/uploads
+      CRON_SCHEDULE: "0 3 15 * *"
+      RUN_ON_START: "false"
+      PYTHONUNBUFFERED: "1"
     volumes:
-      - ./modelo pred menm/static/datalake:/data/datalake:rw
+      - "./modelo pred menm/static/datalake:/data/datalake:rw"
       - geoserver_uploads:/mnt/uploads:rw
     restart: unless-stopped
     networks:
@@ -216,7 +219,6 @@ services:
     profiles:
       - modelo-pred-menm
       - mapstore
-
 
   proxy:
     image: nginx:latest
@@ -232,7 +234,6 @@ services:
       - mapstore-network
     profiles:
       - mapstore
-
 
 networks:
   sat_network:
