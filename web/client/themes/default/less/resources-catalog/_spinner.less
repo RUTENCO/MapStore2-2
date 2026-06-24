@@ -46,9 +46,13 @@
     height: @size;
 }
 
-.ms-spinner {
-    display: inline-flex;
-    >div {
-        .get-ms-spinner(0.1em, 1em);
+/* Esto mapeará los estilos globales de MapStore al spinner del HTML inicial */
+._ms2_init_spinner {
+    color: #1D59C9 !important;
+    > div {
+        /* Forzamos a que use el mixin de MapStore sustituyendo sus bordes grises fijos */
+        .get-ms-spinner(16px, 176px);
+        border-style: solid !important;
     }
 }
+
