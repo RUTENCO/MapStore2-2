@@ -33,8 +33,10 @@
             ._ms2_init_spinner > div {
                 box-sizing: border-box;
                 text-indent: -9999em;
-                border: 16px solid rgba(119,119,119, 0.2);
-                border-left: 16px solid #777777;
+                 /* Cambiado a azul con opacidad (fondo del círculo) */
+                border: 16px solid rgba(0, 123, 255, 0.2) !important;
+                /* Cambiado a azul sólido (la línea que gira) */
+                border-left: 16px solid #1D59C9 !important;
                 -webkit-transform: translateZ(0);
                 -ms-transform: translateZ(0);
                 transform: translateZ(0);
@@ -64,7 +66,7 @@
             ._ms2_init_text {
                 -webkit-animation: _ms2_init_text_anim 2s linear 0s infinite normal;
                 animation: _ms2_init_text_anim 2s linear 0s infinite normal;
-                color: #6F6F6f;
+                color: #474646;
                 font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
                 font-size: 20px;
                 font-weight: bold;
@@ -90,7 +92,7 @@
     <body>
         <div id="container">
             <div class="_ms2_init_spinner _ms2_init_center"><div></div></div>
-            <div class="_ms2_init_text _ms2_init_center">Loading UdeA MapStore</div>
+            <div class="_ms2_init_text _ms2_init_center">Loading MapStore</div>
         </div>
         <script src="dist/embedded.js"></script>
     </body>
