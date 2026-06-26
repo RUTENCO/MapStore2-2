@@ -156,14 +156,19 @@ services:
       - |
         sed -i "s|GEOSTORE_USER_PLACEHOLDER|$${GEOSTORE_DB_USER}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
         sed -i "s|GEOSTORE_PASS_PLACEHOLDER|$${GEOSTORE_DB_PASS}|" /usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
+        envsubst '$$PUBLIC_HOST' \
+          < /templates/proxy.properties.template \
+          > /usr/local/tomcat/datadir/proxy.properties
         exec catalina.sh run
     environment:
-      JAVA_OPTS: >-
-        -DPRINT_BASE_URL=pdf
-        -Ddatadir.location=/usr/local/tomcat/datadir
-        -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
       GEOSTORE_DB_USER: ${GEOSTORE_DB_USER}
       GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
+      PUBLIC_HOST: ${PUBLIC_HOST}
+      PUBLIC_PROTOCOL: ${PUBLIC_PROTOCOL}
+      JAVA_OPTS: >-
+        -DPRINT_BASE_URL=${PUBLIC_PROTOCOL}://${PUBLIC_HOST}/mapstore/pdf
+        -Ddatadir.location=/usr/local/tomcat/datadir
+        -Dgeostore-ovr=file:///usr/local/tomcat/conf/geostore-datasource-ovr-postgres.properties
     depends_on:
       postgres:
         condition: service_healthy
@@ -173,7 +178,7 @@ services:
       - "8080:8080"
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
-      - ./docker/proxy.properties:/usr/local/tomcat/datadir/proxy.properties:ro
+      - ./docker/proxy.properties.template:/templates/proxy.properties.template:ro
     networks:
       - mapstore-network
     profiles:
@@ -223,10 +228,23 @@ services:
   proxy:
     image: nginx:latest
     container_name: proxy
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST}
+      PUBLIC_PROTOCOL: ${PUBLIC_PROTOCOL}
     volumes:
-      - ./docker/mapstore.conf:/etc/nginx/conf.d/default.conf:rw
+      - ./docker/mapstore.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    command: >
+      sh -c "
+      envsubst '\$PUBLIC_HOST \$PUBLIC_PROTOCOL'
+      < /etc/nginx/templates/default.conf.template
+      > /etc/nginx/conf.d/default.conf
+      &&
+      nginx -g 'daemon off;'
+      "
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - mapstore
       - sensors-api
