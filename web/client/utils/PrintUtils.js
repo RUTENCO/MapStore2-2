@@ -238,10 +238,22 @@ export const normalizeUrl = (input) => {
         result = result.substring(0, result.indexOf('?'));
     }
     const absoluteUrl = PrintUtils.toAbsoluteURL(result);
-    return absoluteUrl
+    let normalized = absoluteUrl
         .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\//, 'http://geoserver:8080/')
         .replace(/^https?:\/\/(localhost|127\.0\.0\.1):8080\/geoserver/, 'http://geoserver:8080/geoserver')
         .replace(/^https?:\/\/(localhost|127\.0\.0\.1)\/geoserver/, 'http://geoserver:8080/geoserver');
+    // Producción: reescribir URLs del dominio actual al servicio interno Docker
+    if (typeof window !== 'undefined' && window.location?.hostname) {
+        const host = window.location.hostname;
+        if (host !== 'localhost' && host !== '127.0.0.1') {
+            const escaped = host.replace(/\./g, '[.]');
+            normalized = normalized.replace(
+                new RegExp('^https?://(?:www[.])?' + escaped + '(?::[0-9]+)?/geoserver/'),
+                'http://geoserver:8080/geoserver/'
+            );
+        }
+    }
+    return normalized;
 };
 /**
  * Find the layout name for the given options.

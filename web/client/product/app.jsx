@@ -14,16 +14,31 @@ import { addTransformer } from '../utils/PrintUtils';
 
 checkForMissingPlugins(pluginsDef.plugins);
 
+/**
+ * Reescribe URLs de GeoServer al nombre interno del contenedor Docker
+ * para que MapFish Print las alcance desde dentro de la red Docker.
+ * Funciona para cualquier dominio de producción sin hardcodear el host.
+ */
 const rewritePrintUrl = (value) => {
     if (typeof value !== 'string') {
         return value;
     }
-    return value
+    // Dev: webpack dev server (8081) y nginx local
+    let result = value
         .replace(/^https?:\/\/localhost:8081\//, 'http://geoserver:8080/')
-        .replace(/^https?:\/\/localhost\/geoserver\//, 'http://geoserver:8080/geoserver/')
-        .replace(/^https?:\/\/81\.17\.96\.160:8081\//, 'http://geoserver:8080/')
-        .replace(/^https?:\/\/colombiariskmap\.com\/geoserver\//, 'http://geoserver:8080/geoserver/')
-        .replace(/^https?:\/\/www\.colombiariskmap\.com\/geoserver\//, 'http://geoserver:8080/geoserver/');
+        .replace(/^https?:\/\/localhost(?::\d+)?\/geoserver\//, 'http://geoserver:8080/geoserver/');
+    // Producción: reescribir usando el hostname actual (sin hardcodear el dominio)
+    if (typeof window !== 'undefined' && window.location?.hostname) {
+        const host = window.location.hostname;
+        if (host !== 'localhost' && host !== '127.0.0.1') {
+            const escaped = host.replace(/\./g, '[.]');
+            result = result.replace(
+                new RegExp('^https?://(?:www[.])?' + escaped + '(?::[0-9]+)?/geoserver/'),
+                'http://geoserver:8080/geoserver/'
+            );
+        }
+    }
+    return result;
 };
 
 addTransformer('rewritePrintUrls', (state, spec) => Promise.resolve({
