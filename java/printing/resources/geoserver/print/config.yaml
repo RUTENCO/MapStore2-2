@@ -65,7 +65,7 @@ layouts:
           items:
             - !image
               maxWidth: 550
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           height: 600
           width: 400
@@ -178,7 +178,7 @@ layouts:
           items:
             - !image
               maxWidth: 782
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 592
           height: 400
@@ -279,7 +279,7 @@ layouts:
           items:
             - !image
               maxWidth: 550
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           height: 600
           width: 535
@@ -364,7 +364,7 @@ layouts:
           items:
             - !image
               maxWidth: 782
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 780
           height: 400
@@ -437,7 +437,7 @@ layouts:
           items:
             - !image
               maxWidth: 550
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           height: 600
           width: 535
@@ -559,7 +559,7 @@ layouts:
           items:
             - !image
               maxWidth: 782
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 780
           height: 400
@@ -669,7 +669,7 @@ layouts:
           items:
             - !image
               maxWidth: 800
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 550
           height: 850
@@ -782,7 +782,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 837
           height: 594
@@ -883,7 +883,7 @@ layouts:
           items:
             - !image
               maxWidth: 780
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 760
           height: 850
@@ -968,7 +968,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 1102
           height: 594
@@ -1041,7 +1041,7 @@ layouts:
           items:
             - !image
               maxWidth: 780
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 760
           height: 850
@@ -1163,7 +1163,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: 'file://${configDir}/print_header.png'
+              url: 'file://${configDir}/header_miniciencias.png'
         - !map
           width: 1102
           height: 594
@@ -1274,7 +1274,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 837
           height: 1340
@@ -1392,7 +1392,7 @@ layouts:
           items:
             - !image
               maxWidth: 1563
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 1184
           height: 840
@@ -1492,7 +1492,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 1111
           height: 1340
@@ -1583,7 +1583,7 @@ layouts:
           items:
             - !image
               maxWidth: 1563
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 1600
           height: 840
@@ -1656,7 +1656,7 @@ layouts:
           items:
             - !image
               maxWidth: 1105
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 1111
           height: 1340
@@ -1784,7 +1784,7 @@ layouts:
           items:
             - !image
               maxWidth: 1563
-              url: '/${configDir}/print_header.png'
+              url: '/${configDir}/header_miniciencias.png'
         - !map
           width: 1600
           height: 840
