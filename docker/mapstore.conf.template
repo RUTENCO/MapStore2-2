@@ -7,7 +7,7 @@ server {
 
     server_name ${PUBLIC_HOST} www.${PUBLIC_HOST};
 
-    return 301 https://${PUBLIC_HOST}$request_uri;
+    return 301 https://$host$request_uri;
 }
 
 # =====================================================
@@ -70,7 +70,7 @@ server {
     # Root
     # =================================================
     location = / {
-        return 301 https://${PUBLIC_HOST}/mapstore;
+        return 301 https://$host/mapstore;
     }
 
     # =================================================
