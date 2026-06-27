@@ -125,11 +125,14 @@ services:
       - mapstore
 
   geoserver:
-    image: kartoza/geoserver:2.21.0
+    build:
+      context: .
+      dockerfile: docker/geoserver.Dockerfile
     container_name: geoserver
     environment:
       GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER}
       GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD}
+      PUBLIC_HOST: ${PUBLIC_HOST}
     ports:
       - "8081:8080"
     volumes:
