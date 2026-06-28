@@ -1,5 +1,7 @@
 FROM kartoza/geoserver:2.21.0
 
-COPY docker/geoserver-init.sh /usr/local/bin/geoserver-init.sh
+USER root
 
-RUN chmod +x /usr/local/bin/geoserver-init.sh
+COPY --chmod=755 docker/geoserver-init.sh /usr/local/bin/geoserver-init.sh
+
+ENTRYPOINT ["/usr/local/bin/geoserver-init.sh"]
