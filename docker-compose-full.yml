@@ -117,8 +117,6 @@ services:
       PGDATA: /var/lib/postgresql/data
     volumes:
       - pg_data:/var/lib/postgresql/data:rw
-    ports:
-      - "5433:5432"
     networks:
       - mapstore-network
     profiles:
@@ -133,8 +131,6 @@ services:
       GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER}
       GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD}
       PUBLIC_HOST: ${PUBLIC_HOST}
-    ports:
-      - "8081:8080"
     volumes:
       - geoserver_data:/opt/geoserver/data_dir
       - geoserver_uploads:/mnt/uploads
@@ -177,8 +173,6 @@ services:
         condition: service_healthy
       geoserver:
         condition: service_started
-    ports:
-      - "8080:8080"
     volumes:
       - mapstore_data:/usr/local/tomcat/datadir
       - ./docker/proxy.properties.template:/templates/proxy.properties.template:ro
@@ -197,8 +191,6 @@ services:
       NODE_ENV: production
       STATS_API_BASE_URL: ${STATS_API_BASE_URL}
       STATS_API_TIMEOUT_MS: "15000"
-    ports:
-      - "3001:3001"
     networks:
       - mapstore-network
     profiles:
