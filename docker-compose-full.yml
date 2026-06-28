@@ -115,6 +115,8 @@ services:
       GEOSTORE_DB_PASS: ${GEOSTORE_DB_PASS}
       GEOSTORE_DB_SCHEMA: ${GEOSTORE_DB_SCHEMA}
       PGDATA: /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data:rw
     networks:
